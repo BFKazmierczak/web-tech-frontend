@@ -1,4 +1,4 @@
-import { drawStar } from './utils/drawStar'
+import drawStar from "../"
 
 skyObjectLoader()
 

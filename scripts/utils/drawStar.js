@@ -1,4 +1,4 @@
-export function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+export default function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
   const rot = (Math.PI / 2) * 3
   const x = cx
   const y = cy
