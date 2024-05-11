@@ -6,7 +6,7 @@ function App() {
   const [page, setPage] = useState<string>('/')
 
   return (
-    <div className=" w-full h-full">
+    <div className=" flex flex-col h-[100%] w-full">
       <Navbar />
 
       {page === '/' && <HomePage />}

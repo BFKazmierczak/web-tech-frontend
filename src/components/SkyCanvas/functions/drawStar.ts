@@ -28,7 +28,7 @@ function drawStar(ctx: CanvasRenderingContext2D, star: StarObject) {
   ctx.lineTo(cx, cy - outerRadius)
   ctx.closePath()
   ctx.lineWidth = 1
-  ctx.strokeStyle = 'blue'
+  ctx.strokeStyle = 'white'
   ctx.stroke()
   ctx.fillStyle = 'skyblue'
   ctx.fill()

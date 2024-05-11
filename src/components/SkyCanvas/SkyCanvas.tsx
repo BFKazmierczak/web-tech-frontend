@@ -1,27 +1,66 @@
-import { useEffect, useRef } from 'react'
-import { drawStar } from './functions'
+import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
+import { drawStar, moveObject } from './functions'
 import { StarObject } from '../../shared/interfaces'
 
-const stars: StarObject[] = [
-  // {
-  //   id: 1,
-  //   cx: 20,
-  //   cy: 20,
-  //   spikes: 10,
-  //   innerRadius: 10,
-  //   outerRadius: 10
-  // },
-  {
-    id: 2,
-    cx: 100,
-    cy: 60,
-    spikes: 15,
-    innerRadius: 10,
-    outerRadius: 60
-  }
-]
+interface YPixel {
+  [y: number]: StarObject | StarObject[]
+}
 
-const SkyCanvas = () => {
+interface StarMap {
+  [x: number]: YPixel
+}
+
+function getPixelsInCircle(x0: number, y0: number, radius: number) {
+  let pixels: [number, number][] = []
+
+  // Iterate through each pixel in a bounding box that encloses the circle
+  for (let x = x0 - radius; x <= x0 + radius; x++) {
+    for (let y = y0 - radius; y <= y0 + radius; y++) {
+      // Calculate the distance between the current pixel and the circle's center
+      let distance = Math.sqrt(Math.pow(x - x0, 2) + Math.pow(y - y0, 2))
+      // If the distance is less than or equal to the radius, the pixel is inside the circle
+      if (distance <= radius) {
+        pixels.push([x, y])
+      }
+    }
+  }
+
+  return pixels
+}
+
+function insertStar(
+  mapRef: MutableRefObject<StarMap | null>,
+  pixel: [number, number],
+  star: StarObject
+) {
+  if (!mapRef.current) mapRef.current = {}
+
+  if (mapRef.current[pixel[0]] === undefined) {
+    mapRef.current[pixel[0]] = {}
+    mapRef.current[pixel[0]][pixel[1]] = star
+  } else {
+    if (mapRef.current[pixel[0]][pixel[1]] === undefined) {
+      mapRef.current[pixel[0]][pixel[1]] = star
+    } else {
+      const object = mapRef.current[pixel[0]][pixel[1]]
+
+      if (Array.isArray(object)) {
+        mapRef.current[pixel[0]][pixel[1]] = [...object, star]
+      } else {
+        mapRef.current[pixel[0]][pixel[1]] = [object, star]
+      }
+    }
+  }
+}
+
+interface SkyCanvasProps {
+  stars: StarObject[]
+  onStarSelect: (star: StarObject) => void
+}
+
+const SkyCanvas = ({ stars, onStarSelect }: SkyCanvasProps) => {
+  const starMap = useRef<StarMap | null>(null)
+
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   function starManipulation() {}
@@ -34,6 +73,58 @@ const SkyCanvas = () => {
     }
   }
 
+  function getStar(x: number, y: number) {
+    if (starMap.current) {
+      if (starMap.current[x] && starMap.current[x][y]) {
+        const star = starMap.current[x][y]
+
+        return star
+      }
+    }
+
+    return undefined
+  }
+
+  function handleGenericPointer(event: React.PointerEvent<HTMLCanvasElement>) {
+    const boundingRect = event.currentTarget.getBoundingClientRect()
+
+    const pointerX = event.clientX - boundingRect.left
+    const pointerY = event.clientY - boundingRect.top
+
+    const foundStar = getStar(pointerX, pointerY)
+
+    if (canvasRef.current) {
+      if (foundStar) {
+        if (!Array.isArray(foundStar)) {
+          const ctx = canvasRef.current.getContext('2d')
+
+          if (ctx) {
+            moveObject(ctx, pointerX, pointerY)
+          }
+        }
+      }
+    }
+  }
+
+  function handlePointerMove(event: React.PointerEvent<HTMLCanvasElement>) {
+    if (event.buttons > 0) handleGenericPointer(event)
+  }
+
+  useEffect(() => {
+    if (stars.length) {
+      stars.forEach((star) => {
+        const starPixels = getPixelsInCircle(star.cx, star.cy, star.innerRadius)
+        starPixels.forEach((pixel) => insertStar(starMap, pixel, star))
+      })
+
+      console.log({ starMap })
+    }
+
+    return () => {
+      starMap.current = null
+    }
+  }, [stars])
+
   useEffect(() => {
     if (canvasRef.current) {
       loadObjects(canvasRef.current)
@@ -45,8 +136,10 @@ const SkyCanvas = () => {
       <canvas
         id="skyCanvas"
         ref={canvasRef}
-        className=" bg-indigo-700"
+        className=" bg-slate-900"
         style={{ width: '100%' }}
+        onPointerMove={handlePointerMove}
+        onPointerDown={handleGenericPointer}
       />
     </>
   )
