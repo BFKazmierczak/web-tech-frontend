@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { SkyCanvas } from '../components/SkyCanvas'
+import { SkyMap } from '../components/SkyMap'
 import { SkyElements } from '../components/SkyElements'
 import { StarObject } from '../shared/interfaces'
 import { Drawer } from '@mui/material'
@@ -11,8 +11,8 @@ const HomePage = () => {
     {
       id: 2,
       name: 'Gwiazda Betlejemska',
-      cx: 250,
-      cy: 80,
+      positionX: 250,
+      positionY: 80,
       spikes: 9,
       innerRadius: 5,
       outerRadius: 15,
@@ -21,8 +21,8 @@ const HomePage = () => {
     {
       id: 2,
       name: 'Alpha Centauri',
-      cx: 100,
-      cy: 60,
+      positionX: 160,
+      positionY: 60,
       spikes: 11,
       innerRadius: 10,
       outerRadius: 40,
@@ -43,7 +43,7 @@ const HomePage = () => {
     <div className=" flex flex-col gap-y-2 p-2">
       <p className=" leading-none">Mapa nieba</p>
       <hr />
-      <SkyCanvas stars={stars} onStarSelect={setSelectedStar} />
+      <SkyMap stars={stars} onStarSelect={setSelectedStar} />
 
       <hr />
 

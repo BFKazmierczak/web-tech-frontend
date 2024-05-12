@@ -1,6 +1,14 @@
-import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
+import React, {
+  MutableRefObject,
+  ReactElement,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 import { drawStar, moveObject } from './functions'
 import { StarObject } from '../../shared/interfaces'
+import { SkyObject } from '../SkyObject'
 
 interface YPixel {
   [y: number]: StarObject | StarObject[]
@@ -53,15 +61,20 @@ function insertStar(
   }
 }
 
-interface SkyCanvasProps {
+interface SkyMapProps {
   stars: StarObject[]
   onStarSelect: (star: StarObject) => void
 }
 
-const SkyCanvas = ({ stars, onStarSelect }: SkyCanvasProps) => {
+const SkyMap = ({ stars, onStarSelect }: SkyMapProps) => {
   const starMap = useRef<StarMap | null>(null)
+  const mapContainer = useRef<HTMLDivElement>(null)
+
+  const [skyObjects, setSkyObjects] = useState<StarObject[]>(stars)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const canvasOffsetxX = useRef<number>(0)
+  const canvasOffsetY = useRef<number>(0)
 
   function starManipulation() {}
 
@@ -85,45 +98,47 @@ const SkyCanvas = ({ stars, onStarSelect }: SkyCanvasProps) => {
     return undefined
   }
 
-  function handleGenericPointer(event: React.PointerEvent<HTMLCanvasElement>) {
+  function handleGenericPointer(event: React.PointerEvent<HTMLDivElement>) {
     const boundingRect = event.currentTarget.getBoundingClientRect()
 
     const pointerX = event.clientX - boundingRect.left
     const pointerY = event.clientY - boundingRect.top
 
-    const foundStar = getStar(pointerX, pointerY)
+    console.log('PARENT:', { pointerX, pointerY })
 
-    if (canvasRef.current) {
-      if (foundStar) {
-        if (!Array.isArray(foundStar)) {
-          const ctx = canvasRef.current.getContext('2d')
+    // const foundStar = getStar(pointerX, pointerY)
 
-          if (ctx) {
-            moveObject(ctx, pointerX, pointerY)
-          }
-        }
-      }
-    }
+    // if (canvasRef.current) {
+    //   if (foundStar) {
+    //     if (!Array.isArray(foundStar)) {
+    //       const ctx = canvasRef.current.getContext('2d')
+
+    //       if (ctx) {
+    //         moveObject(ctx, pointerX, pointerY)
+    //       }
+    //     }
+    //   }
+    // }
   }
 
-  function handlePointerMove(event: React.PointerEvent<HTMLCanvasElement>) {
+  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
     if (event.buttons > 0) handleGenericPointer(event)
   }
 
-  useEffect(() => {
-    if (stars.length) {
-      stars.forEach((star) => {
-        const starPixels = getPixelsInCircle(star.cx, star.cy, star.innerRadius)
-        starPixels.forEach((pixel) => insertStar(starMap, pixel, star))
-      })
+  // useEffect(() => {
+  //   if (stars.length) {
+  //     stars.forEach((star) => {
+  //       const starPixels = getPixelsInCircle(star.cx, star.cy, star.innerRadius)
+  //       starPixels.forEach((pixel) => insertStar(starMap, pixel, star))
+  //     })
 
-      console.log({ starMap })
-    }
+  //     console.log({ starMap })
+  //   }
 
-    return () => {
-      starMap.current = null
-    }
-  }, [stars])
+  //   return () => {
+  //     starMap.current = null
+  //   }
+  // }, [stars])
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -132,17 +147,18 @@ const SkyCanvas = ({ stars, onStarSelect }: SkyCanvasProps) => {
   }, [canvasRef])
 
   return (
-    <>
-      <canvas
-        id="skyCanvas"
-        ref={canvasRef}
-        className=" bg-slate-900"
-        style={{ width: '100%' }}
-        onPointerMove={handlePointerMove}
-        onPointerDown={handleGenericPointer}
-      />
-    </>
+    <div
+      className=" relative h-full w-full min-h-48 bg-slate-900"
+      ref={mapContainer}
+      onPointerMove={handlePointerMove}
+      onPointerDown={handleGenericPointer}>
+      <>
+        {skyObjects.map((object) => (
+          <SkyObject parentRef={mapContainer} skyObject={object} />
+        ))}
+      </>
+    </div>
   )
 }
 
-export default SkyCanvas
+export default SkyMap

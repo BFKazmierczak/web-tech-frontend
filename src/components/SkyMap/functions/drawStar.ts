@@ -1,7 +1,10 @@
 import { StarObject } from '../../../shared/interfaces'
 
 function drawStar(ctx: CanvasRenderingContext2D, star: StarObject) {
-  const { cx, cy, spikes, outerRadius, innerRadius } = star
+  const { spikes, outerRadius, innerRadius } = star
+
+  let cx = ctx.canvas.width / 2
+  let cy = ctx.canvas.height / 2
 
   let rot = (Math.PI / 2) * 3
   let x = cx
