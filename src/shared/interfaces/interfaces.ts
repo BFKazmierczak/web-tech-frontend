@@ -13,4 +13,5 @@ export interface StarObject {
   outerRadius: AssertPositive<number>
   innerRadius: AssertPositive<number>
   layer: number
+  color: string
 }

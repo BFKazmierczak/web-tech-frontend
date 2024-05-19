@@ -1,6 +1,7 @@
 import React, { RefObject, useEffect, useRef, useState } from 'react'
 import { StarObject } from '../../shared/interfaces'
 import { drawStar } from '../SkyMap/functions'
+import { relative } from 'path'
 
 interface SkyObjectProps {
   parentRef: RefObject<HTMLDivElement>
@@ -11,52 +12,101 @@ const SkyObject = ({ parentRef, skyObject }: SkyObjectProps) => {
   const objectRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const [initialPosition, setInitialPosition] = useState<[number, number]>([
-    skyObject.positionX,
-    skyObject.positionY
-  ])
+  const [innerSkyObject, setInnerSkyObject] = useState<StarObject>(skyObject)
 
-  // useEffect(() => {
-  //   if (objectRef.current) {
-  //     console.log('current useeffect')
-
-  //     const div = objectRef.current
-  //     const rect = div.getBoundingClientRect()
-
-  //     const skyObjectWidth = (skyObject.innerRadius + skyObject.outerRadius) * 2
-  //     const skyObjectHeight =
-  //       (skyObject.innerRadius + skyObject.outerRadius) * 2
-
-  //     const relativeX = initialPosition[0]
-  //     const relativeY = initialPosition[1]
-
-  //     console.log({ initialPosition })
-  //     console.log({ skyObjectWidth, skyObjectHeight })
-
-  //     div.style.left = `${relativeX}px`
-  //     div.style.top = `${relativeY}px`
-  //   }
-  // }, [objectRef.current, initialPosition])
+  const [transform, setTransform] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0
+  })
 
   useEffect(() => {
-    console.log('useeffect')
+    // check the diff here...
+
+    const passedObjectWidth =
+      2 * (skyObject.innerRadius + skyObject.outerRadius)
+    const passedObjectHeight =
+      2 * (skyObject.innerRadius + skyObject.outerRadius)
+
+    const innerObjectWidth =
+      2 * (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
+    const innerObjectHeight =
+      2 * (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
+
+    console.log(skyObject)
+    console.log(innerSkyObject)
+
+    const widthDiff = passedObjectWidth - innerObjectWidth
+    const heightDiff = passedObjectHeight - innerObjectHeight
+
+    console.log('WIDTH DIFFERENCE:', widthDiff)
+    console.log('HEIGHT DIFFERENCE:', heightDiff)
+
+    const div = objectRef.current
+    if (div) {
+      setTransform((prev) => ({
+        x: prev.x - widthDiff / 2,
+        y: prev.y - heightDiff / 2
+      }))
+    }
+
+    setInnerSkyObject(skyObject)
+  }, [skyObject])
+
+  useEffect(() => {
+    const div = objectRef.current
+    if (div) {
+      div.style.transform = `translateX(${transform.x}px) translateY(${transform.y}px)`
+    }
+  }, [transform, objectRef.current])
+
+  useEffect(() => {
+    if (parentRef.current) {
+      console.log('current useeffect')
+
+      const skyObjectWidth =
+        (innerSkyObject.innerRadius + innerSkyObject.outerRadius) * 2
+      const skyObjectHeight =
+        (innerSkyObject.innerRadius + innerSkyObject.outerRadius) * 2
+
+      const relativeX = innerSkyObject.positionX - skyObjectWidth / 2
+      const relativeY = innerSkyObject.positionY - skyObjectHeight / 2
+
+      console.log('POS:', innerSkyObject.positionX, innerSkyObject.positionY)
+      console.log({ skyObjectWidth, skyObjectHeight })
+
+      setTransform({
+        x: relativeX,
+        y: relativeY
+      })
+    }
+  }, [
+    objectRef.current,
+    parentRef.current,
+    innerSkyObject.positionX,
+    innerSkyObject.positionY
+  ])
+
+  useEffect(() => {
     const canvas = canvasRef.current
     const ctx = canvas?.getContext('2d')
 
     if (ctx && canvas) {
-      const canvasSize = skyObject.innerRadius * 2 + skyObject.outerRadius * 2
+      const canvasSize =
+        innerSkyObject.innerRadius * 2 + innerSkyObject.outerRadius * 2
 
       canvas.width = canvasSize
       canvas.height = canvasSize
 
-      drawStar(ctx, skyObject)
+      drawStar(ctx, innerSkyObject)
     }
-  }, [canvasRef, skyObject])
+  }, [canvasRef, innerSkyObject])
 
   function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
-    if (event.buttons > 0 && objectRef.current) {
-      const div = objectRef.current
+    if (event.buttons > 0) {
+      const div = event.currentTarget
       if (parentRef.current) {
+        div.style.border = '2px dotted red'
+
         const parentBoundingRect = parentRef.current.getBoundingClientRect()
         const boundingRect = div.getBoundingClientRect()
 
@@ -66,8 +116,6 @@ const SkyObject = ({ parentRef, skyObject }: SkyObjectProps) => {
         const objectCenterX = boundingRect.width / 2
         const objectCenterY = boundingRect.height / 2
 
-        console.log({ objectCenterX, objectCenterY })
-
         const offsetX = relativePointerX - objectCenterX
         const offsetY = relativePointerY - objectCenterY
 
@@ -76,11 +124,16 @@ const SkyObject = ({ parentRef, skyObject }: SkyObjectProps) => {
     }
   }
 
+  function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
+    event.currentTarget.style.border = 'none'
+  }
+
   return (
     <div
       ref={objectRef}
       className=" absolute"
-      onPointerMove={handlePointerMove}>
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}>
       <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
     </div>
   )

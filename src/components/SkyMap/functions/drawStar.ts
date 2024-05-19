@@ -33,7 +33,7 @@ function drawStar(ctx: CanvasRenderingContext2D, star: StarObject) {
   ctx.lineWidth = 1
   ctx.strokeStyle = 'white'
   ctx.stroke()
-  ctx.fillStyle = 'skyblue'
+  ctx.fillStyle = star.color
   ctx.fill()
 }
 

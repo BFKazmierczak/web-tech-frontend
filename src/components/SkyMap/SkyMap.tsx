@@ -76,7 +76,28 @@ const SkyMap = ({ stars, onStarSelect }: SkyMapProps) => {
   const canvasOffsetxX = useRef<number>(0)
   const canvasOffsetY = useRef<number>(0)
 
-  function starManipulation() {}
+  useEffect(() => {
+    if (stars.length !== skyObjects.length) {
+      setSkyObjects(stars)
+    } else {
+      let changedObject = undefined
+
+      skyObjects.forEach((object, index) => {
+        const passedObj = stars[index]
+
+        const passedObjString = JSON.stringify(passedObj)
+        const currentObjString = JSON.stringify(object)
+
+        if (passedObjString !== currentObjString) {
+          setSkyObjects((prev) => {
+            const newArr = [...prev]
+            newArr[index] = passedObj
+            return newArr
+          })
+        }
+      })
+    }
+  }, [stars])
 
   function loadObjects(canvas: HTMLCanvasElement) {
     const ctx = canvas.getContext('2d')
@@ -154,7 +175,11 @@ const SkyMap = ({ stars, onStarSelect }: SkyMapProps) => {
       onPointerDown={handleGenericPointer}>
       <>
         {skyObjects.map((object) => (
-          <SkyObject parentRef={mapContainer} skyObject={object} />
+          <SkyObject
+            key={object.id}
+            parentRef={mapContainer}
+            skyObject={object}
+          />
         ))}
       </>
     </div>
