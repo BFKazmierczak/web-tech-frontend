@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { StarObject } from '../../shared/interfaces'
 import { HexColorPicker } from 'react-colorful'
-import { Button, Input } from '@mui/material'
+import { Button, Input, capitalize } from '@mui/material'
 
 interface ObjectEditorProps {
   skyObject: StarObject
@@ -53,76 +53,97 @@ const ObjectEditor = ({ skyObject, onObjectChange }: ObjectEditorProps) => {
   }
 
   return (
-    <div className=" relative flex flex-col gap-y-1 w-full sm:w-80">
-      <span>{skyObject?.name}</span>
-      {Object.entries(skyObject).map((entry) => (
-        <>
-          {entry[0] !== 'id' && entry[0] !== 'color' && (
-            <div className=" flex justify-between">
-              <span>{entry[0]}:</span>
-              <Input
-                type={typeof entry[1]}
-                value={values[entry[0] as keyof StarObject]}
-                onChange={(event) =>
-                  handleChange(event, entry[0] as keyof StarObject)
-                }></Input>
-            </div>
-          )}
+    <div className=" relative flex flex-col gap-y-3 w-full px-5 sm:w-[600px]">
+      <span className=" flex gap-x-1">
+        <span className=" font-light">Edytowanie:</span>
+        {skyObject?.name}
+      </span>
 
-          {entry[0] === 'color' && (
+      <hr />
+
+      <div className=" flex">
+        <div className=" flex flex-col gap-y-1 w-1/2">
+          {Object.keys(skyObject).map((key) => (
             <>
-              <div className=" flex justify-between">
-                <span>{entry[0]}:</span>
-                <div
-                  className=" flex min-w-32 cursor-pointer"
-                  onClick={() => setShowColorPicker(true)}>
-                  <div
-                    className=" w-6 h-6 aspect-square"
-                    style={{
-                      backgroundColor: entry[1]
-                    }}
-                  />
+              {key !== 'id' && (
+                <span className=" font-bold h-8">{capitalize(key)}:</span>
+              )}
+            </>
+          ))}
+        </div>
+
+        <div className=" flex flex-col gap-y-1 w-1/2">
+          {Object.entries(skyObject).map((entry) => (
+            <>
+              {entry[0] !== 'id' && entry[0] !== 'color' && (
+                <div className=" flex items-center h-8">
+                  <Input
+                    type={typeof entry[1]}
+                    fullWidth
+                    value={values[entry[0] as keyof StarObject]}
+                    onChange={(event) =>
+                      handleChange(event, entry[0] as keyof StarObject)
+                    }></Input>
                 </div>
-              </div>
+              )}
 
-              {showColorPicker && (
+              {entry[0] === 'color' && (
                 <>
-                  {/* <div className=" absolute w-full h-full" /> */}
-
-                  <div className=" fixed flex items-center justify-center z-50 w-full h-full inset-0">
+                  <div
+                    className=" flex gap-x-1 w-full justify-between items-center min-w-32 cursor-pointer"
+                    onClick={() => setShowColorPicker(true)}>
                     <div
-                      className=" fixed inset-0 bg-black bg-opacity-75"
-                      onClick={() => setShowColorPicker(false)}
+                      className=" w-8 h-8 aspect-square"
+                      style={{
+                        backgroundColor: entry[1]
+                      }}
                     />
 
-                    <div className=" flex flex-col gap-y-2">
-                      <HexColorPicker
-                        color={entry[1]}
-                        onChange={(newColor) => {
-                          colorRef.current = newColor
-                        }}
-                      />
-
-                      <Button
-                        variant="contained"
-                        onClick={() => {
-                          setShowColorPicker(false)
-                          handleChange(
-                            undefined,
-                            entry[0] as keyof StarObject,
-                            colorRef.current
-                          )
-                        }}>
-                        Zatwierdź
-                      </Button>
-                    </div>
+                    <Button fullWidth variant="outlined">
+                      Zmień
+                    </Button>
                   </div>
+
+                  {showColorPicker && (
+                    <>
+                      <div className=" fixed flex items-center justify-center z-50 w-full h-full inset-0">
+                        <div
+                          className=" fixed inset-0 bg-black bg-opacity-75"
+                          onClick={() => setShowColorPicker(false)}
+                        />
+
+                        <div className=" flex flex-col gap-y-2">
+                          <HexColorPicker
+                            color={entry[1]}
+                            onChange={(newColor) => {
+                              colorRef.current = newColor
+                            }}
+                          />
+
+                          <Button
+                            variant="contained"
+                            onClick={() => {
+                              setShowColorPicker(false)
+                              handleChange(
+                                undefined,
+                                entry[0] as keyof StarObject,
+                                colorRef.current
+                              )
+                            }}>
+                            Zatwierdź
+                          </Button>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </>
               )}
             </>
-          )}
-        </>
-      ))}
+          ))}
+        </div>
+      </div>
+
+      <Button variant="outlined">Zatwierdź zmiany</Button>
     </div>
   )
 }

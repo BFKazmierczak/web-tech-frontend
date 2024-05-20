@@ -179,6 +179,7 @@ const SkyMap = ({ stars, onStarSelect }: SkyMapProps) => {
             key={object.id}
             parentRef={mapContainer}
             skyObject={object}
+            onClick={(event) => onStarSelect(object)}
           />
         ))}
       </>

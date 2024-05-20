@@ -6,9 +6,10 @@ import { relative } from 'path'
 interface SkyObjectProps {
   parentRef: RefObject<HTMLDivElement>
   skyObject: StarObject
+  onClick: (event: React.MouseEvent<HTMLDivElement>) => void
 }
 
-const SkyObject = ({ parentRef, skyObject }: SkyObjectProps) => {
+const SkyObject = ({ parentRef, skyObject, onClick }: SkyObjectProps) => {
   const objectRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -139,7 +140,8 @@ const SkyObject = ({ parentRef, skyObject }: SkyObjectProps) => {
       ref={objectRef}
       className=" absolute"
       onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}>
+      onPointerUp={handlePointerUp}
+      onClick={onClick}>
       <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
     </div>
   )

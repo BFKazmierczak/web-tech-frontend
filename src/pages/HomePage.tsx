@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react'
 import { SkyMap } from '../components/SkyMap'
 import { SkyElements } from '../components/SkyElements'
 import { StarObject } from '../shared/interfaces'
-import { Drawer } from '@mui/material'
+import { Button, Drawer } from '@mui/material'
 import { ObjectEditor } from '../components/ObjectEditor'
+
+import EditNoteIcon from '@mui/icons-material/EditNote'
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
 
 const HomePage = () => {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
@@ -33,6 +36,7 @@ const HomePage = () => {
     }
   ])
   const [selectedStar, setSelectedStar] = useState<StarObject>()
+  const [editedObject, setEditedObject] = useState<StarObject>()
 
   useEffect(() => {
     if (selectedStar) setDrawerOpen(true)
@@ -62,13 +66,32 @@ const HomePage = () => {
 
       <hr />
 
-      <ObjectEditor skyObject={stars[0]} onObjectChange={handleObjectChange} />
+      {selectedStar && !editedObject && (
+        <>
+          <span>
+            Wybrano: {selectedStar.name}{' '}
+            <Button
+              variant="outlined"
+              startIcon={<EditNoteIcon />}
+              onClick={() => setEditedObject(selectedStar)}>
+              Edytuj
+            </Button>
+          </span>
+        </>
+      )}
+
+      {editedObject && (
+        <ObjectEditor
+          skyObject={editedObject}
+          onObjectChange={handleObjectChange}
+        />
+      )}
 
       {/* <p>Elementy nieba</p>
 
       <SkyElements stars={stars} /> */}
 
-      <Drawer
+      {/* <Drawer
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         anchor="bottom">
@@ -77,7 +100,7 @@ const HomePage = () => {
           <hr />
           <span>Odległość: {selectedStar?.layer}</span>
         </div>
-      </Drawer>
+      </Drawer> */}
     </div>
   )
 }
