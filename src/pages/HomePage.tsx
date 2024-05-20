@@ -18,7 +18,7 @@ const HomePage = () => {
       innerRadius: 5,
       outerRadius: 15,
       layer: 0,
-      color: '#ffffff'
+      color: '#234445'
     },
     {
       id: 2,

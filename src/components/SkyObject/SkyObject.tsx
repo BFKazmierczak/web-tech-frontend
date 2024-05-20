@@ -22,15 +22,19 @@ const SkyObject = ({ parentRef, skyObject }: SkyObjectProps) => {
   useEffect(() => {
     // check the diff here...
 
-    const passedObjectWidth =
+    const passedObjectWidth = Math.abs(
       2 * (skyObject.innerRadius + skyObject.outerRadius)
-    const passedObjectHeight =
+    )
+    const passedObjectHeight = Math.abs(
       2 * (skyObject.innerRadius + skyObject.outerRadius)
+    )
 
-    const innerObjectWidth =
+    const innerObjectWidth = Math.abs(
       2 * (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
-    const innerObjectHeight =
+    )
+    const innerObjectHeight = Math.abs(
       2 * (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
+    )
 
     console.log(skyObject)
     console.log(innerSkyObject)
@@ -63,10 +67,12 @@ const SkyObject = ({ parentRef, skyObject }: SkyObjectProps) => {
     if (parentRef.current) {
       console.log('current useeffect')
 
-      const skyObjectWidth =
+      const skyObjectWidth = Math.abs(
         (innerSkyObject.innerRadius + innerSkyObject.outerRadius) * 2
-      const skyObjectHeight =
+      )
+      const skyObjectHeight = Math.abs(
         (innerSkyObject.innerRadius + innerSkyObject.outerRadius) * 2
+      )
 
       const relativeX = innerSkyObject.positionX - skyObjectWidth / 2
       const relativeY = innerSkyObject.positionY - skyObjectHeight / 2
