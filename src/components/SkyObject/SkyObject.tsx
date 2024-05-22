@@ -7,9 +7,15 @@ interface SkyObjectProps {
   parentRef: RefObject<HTMLDivElement>
   skyObject: StarObject
   onClick: (event: React.MouseEvent<HTMLDivElement>) => void
+  editing?: boolean
 }
 
-const SkyObject = ({ parentRef, skyObject, onClick }: SkyObjectProps) => {
+const SkyObject = ({
+  parentRef,
+  skyObject,
+  onClick,
+  editing = false
+}: SkyObjectProps) => {
   const objectRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -108,6 +114,11 @@ const SkyObject = ({ parentRef, skyObject, onClick }: SkyObjectProps) => {
     }
   }, [canvasRef, innerSkyObject])
 
+  useEffect(() => {
+    if (editing && objectRef.current)
+      objectRef.current.style.border = '2px dotted red'
+  }, [editing, objectRef])
+
   function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
     if (event.buttons > 0) {
       const div = event.currentTarget
@@ -132,7 +143,7 @@ const SkyObject = ({ parentRef, skyObject, onClick }: SkyObjectProps) => {
   }
 
   function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
-    event.currentTarget.style.border = 'none'
+    if (!editing) event.currentTarget.style.border = 'none'
   }
 
   return (

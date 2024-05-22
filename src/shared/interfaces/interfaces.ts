@@ -4,6 +4,10 @@ type AssertPositive<N extends number> = number extends N
   ? never
   : N
 
+interface StarConnections {
+  [starId: number]: StarObject[]
+}
+
 export interface StarObject {
   id: AssertPositive<number>
   name: string
@@ -14,4 +18,11 @@ export interface StarObject {
   innerRadius: AssertPositive<number>
   layer: number
   color: string
+  constellation?: ConstellationObject
+}
+
+export interface ConstellationObject {
+  id: number
+  name: string
+  starConnections: StarConnections
 }

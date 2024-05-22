@@ -9,6 +9,7 @@ import React, {
 import { drawStar, moveObject } from './functions'
 import { StarObject } from '../../shared/interfaces'
 import { SkyObject } from '../SkyObject'
+import { ConstellationObject } from '../../shared/interfaces/interfaces'
 
 interface YPixel {
   [y: number]: StarObject | StarObject[]
@@ -63,10 +64,17 @@ function insertStar(
 
 interface SkyMapProps {
   stars: StarObject[]
+  constellations: ConstellationObject[]
   onStarSelect: (star: StarObject) => void
+  editedStar?: StarObject
 }
 
-const SkyMap = ({ stars, onStarSelect }: SkyMapProps) => {
+const SkyMap = ({
+  stars,
+  constellations,
+  onStarSelect,
+  editedStar = undefined
+}: SkyMapProps) => {
   const starMap = useRef<StarMap | null>(null)
   const mapContainer = useRef<HTMLDivElement>(null)
 
@@ -177,6 +185,8 @@ const SkyMap = ({ stars, onStarSelect }: SkyMapProps) => {
         {skyObjects.map((object) => (
           <SkyObject
             key={object.id}
+            // connectedTo={}
+            editing={editedStar?.id === object.id}
             parentRef={mapContainer}
             skyObject={object}
             onClick={(event) => onStarSelect(object)}

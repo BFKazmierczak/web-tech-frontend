@@ -7,6 +7,7 @@ import { ObjectEditor } from '../components/ObjectEditor'
 
 import EditNoteIcon from '@mui/icons-material/EditNote'
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
+import { ConstellationObject } from '../shared/interfaces/interfaces'
 
 const HomePage = () => {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
@@ -33,10 +34,32 @@ const HomePage = () => {
       outerRadius: 40,
       layer: 0,
       color: '#ffffff'
+    },
+    {
+      id: 3,
+      name: 'Beta Centauri',
+      positionX: 50,
+      positionY: 50,
+      spikes: 11,
+      innerRadius: 10,
+      outerRadius: 40,
+      layer: 0,
+      color: '#ffffff'
     }
   ])
   const [selectedStar, setSelectedStar] = useState<StarObject>()
   const [editedObject, setEditedObject] = useState<StarObject>()
+
+  const [constellations, setConstellations] = useState<ConstellationObject[]>([
+    {
+      id: 1,
+      name: 'test constellation',
+      starConnections: {
+        1: [stars[1]],
+        2: [stars[2]]
+      }
+    }
+  ])
 
   useEffect(() => {
     if (selectedStar) setDrawerOpen(true)
@@ -62,7 +85,12 @@ const HomePage = () => {
     <div className=" flex flex-col gap-y-2 p-2">
       <p className=" leading-none">Mapa nieba</p>
       <hr />
-      <SkyMap stars={stars} onStarSelect={setSelectedStar} />
+      <SkyMap
+        stars={stars}
+        constellations={constellations}
+        onStarSelect={setSelectedStar}
+        editedStar={editedObject}
+      />
 
       <hr />
 
@@ -84,6 +112,7 @@ const HomePage = () => {
         <ObjectEditor
           skyObject={editedObject}
           onObjectChange={handleObjectChange}
+          onSaveChanges={() => setEditedObject(undefined)}
         />
       )}
 

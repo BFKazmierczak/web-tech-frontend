@@ -6,9 +6,14 @@ import { Button, Input, capitalize } from '@mui/material'
 interface ObjectEditorProps {
   skyObject: StarObject
   onObjectChange: (obj: StarObject) => void
+  onSaveChanges: () => void
 }
 
-const ObjectEditor = ({ skyObject, onObjectChange }: ObjectEditorProps) => {
+const ObjectEditor = ({
+  skyObject,
+  onObjectChange,
+  onSaveChanges
+}: ObjectEditorProps) => {
   const colorRef = useRef<string>(skyObject.color)
 
   const [values, setValues] = useState<StarObject>(skyObject)
@@ -92,15 +97,16 @@ const ObjectEditor = ({ skyObject, onObjectChange }: ObjectEditorProps) => {
                   <div
                     className=" flex gap-x-1 w-full justify-between items-center min-w-32 cursor-pointer"
                     onClick={() => setShowColorPicker(true)}>
-                    <div
-                      className=" w-8 h-8 aspect-square"
-                      style={{
-                        backgroundColor: entry[1]
-                      }}
-                    />
-
                     <Button fullWidth variant="outlined">
-                      Zmień
+                      <div className=" flex items-center gap-x-3">
+                        <div
+                          className=" w-6 h-6 aspect-square rounded-lg"
+                          style={{
+                            backgroundColor: colorRef.current
+                          }}
+                        />
+                        Zmień
+                      </div>
                     </Button>
                   </div>
 
@@ -143,7 +149,9 @@ const ObjectEditor = ({ skyObject, onObjectChange }: ObjectEditorProps) => {
         </div>
       </div>
 
-      <Button variant="outlined">Zatwierdź zmiany</Button>
+      <Button variant="outlined" onClick={() => onSaveChanges()}>
+        Zatwierdź zmiany
+      </Button>
     </div>
   )
 }
