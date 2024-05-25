@@ -6,17 +6,17 @@ import { relative } from 'path'
 interface SkyObjectProps {
   parentRef: RefObject<HTMLDivElement>
   skyObject: StarObject
-  starConnections: StarObject[]
   onClick: (event: React.MouseEvent<HTMLDivElement>) => void
   editing?: boolean
+  onPositionUpdate: (star: StarObject, x: number, y: number) => void
 }
 
 const SkyObject = ({
   parentRef,
   skyObject,
-  starConnections,
   onClick,
-  editing = false
+  editing = false,
+  onPositionUpdate
 }: SkyObjectProps) => {
   const objectRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -64,16 +64,22 @@ const SkyObject = ({
     const div = objectRef.current
     if (div) {
       div.style.transform = `translateX(${transform.x}px) translateY(${transform.y}px)`
-      setInnerSkyObject((prev) => {
-        return { ...prev }
-      })
+
+      const x =
+        transform.x + (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
+      const y =
+        transform.y + (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
+
+      onPositionUpdate(innerSkyObject, x, y)
     }
   }, [transform, objectRef.current])
 
   useEffect(() => {
-    if (parentRef.current) {
-      console.log('current useeffect')
+    console.log('NEW INNER OBJECT:', { innerSkyObject })
+  }, [innerSkyObject])
 
+  useEffect(() => {
+    if (parentRef.current) {
       const skyObjectWidth = Math.abs(
         (innerSkyObject.innerRadius + innerSkyObject.outerRadius) * 2
       )
@@ -115,59 +121,55 @@ const SkyObject = ({
     }
   }, [canvasRef, innerSkyObject])
 
-  useEffect(() => {
-    const starConnections =
-      innerSkyObject.constellation?.starConnections[innerSkyObject.id]
+  // useEffect(() => {
+  //   const starConnections =
+  //     innerSkyObject.constellation?.starConnections[innerSkyObject.id]
 
-    if (
-      starConnections !== undefined &&
-      Object.keys(connectionRefs).length === starConnections.length
-    ) {
-      Object.entries(connectionRefs).forEach((entry) => {
-        const starId = entry[0]
-        const canvas = entry[1]
-        const ctx = canvas.getContext('2d')
+  //   if (
+  //     starConnections !== undefined &&
+  //     Object.keys(connectionRefs).length === starConnections.length
+  //   ) {
+  //     Object.entries(connectionRefs).forEach((entry) => {
+  //       const starId = entry[0]
+  //       const canvas = entry[1]
+  //       const ctx = canvas.getContext('2d')
 
-        const connectedStar = starConnections.find(
-          (star) => star.id === Number(starId)
-        )
+  //       const connectedStar = starConnections.find(
+  //         (star) => star.id === Number(starId)
+  //       )
 
-        if (ctx && connectedStar) {
-          const parent = canvas.parentElement
+  //       if (ctx && connectedStar) {
+  //         const parent = canvas.parentElement
 
-          if (parent) {
-            const { width, height } = parent.getBoundingClientRect()
+  //         if (parent) {
+  //           const { width, height } = parent.getBoundingClientRect()
 
-            canvas.width = width
-            canvas.height = height
-          }
+  //           canvas.width = width
+  //           canvas.height = height
+  //         }
 
-          console.log(
-            'position:',
-            innerSkyObject.positionX,
-            innerSkyObject.positionY
-          )
+  //         console.log(
+  //           'position:',
+  //           innerSkyObject.positionX,
+  //           innerSkyObject.positionY
+  //         )
 
-          console.log('wtf?')
+  //         console.log('wtf?')
 
-          const x =
-            transform.x +
-            (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
-          const y =
-            transform.y +
-            (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
+  //         const x =
+  //           transform.x +
+  //           (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
+  //         const y =
+  //           transform.y +
+  //           (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
 
-          const beginPositions = [x, y] as [x: number, y: number]
+  //         const beginPositions = [x, y] as [x: number, y: number]
 
-          drawConnection(ctx, beginPositions, connectedStar)
-        }
-      })
-    }
-  }, [connectionRefs, transform])
-
-  useEffect(() => {
-    console.log('style effect:', objectRef.current?.style.transform)
-  }, [objectRef.current?.style])
+  //         drawConnection(ctx, beginPositions, connectedStar)
+  //       }
+  //     })
+  //   }
+  // }, [connectionRefs, transform])
 
   useEffect(() => {
     if (editing && objectRef.current)
@@ -214,16 +216,6 @@ const SkyObject = ({
         onClick={onClick}>
         <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
       </div>
-
-      {starConnections.map((connectedStar) => (
-        <div className=" absolute" style={{ width: '100%', height: '100%' }}>
-          <canvas
-            ref={(ref) => {
-              if (ref) connectionRefs[connectedStar.id] = ref
-            }}
-          />
-        </div>
-      ))}
     </>
   )
 }

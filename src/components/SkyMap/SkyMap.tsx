@@ -9,7 +9,11 @@ import React, {
 import { drawStar, moveObject } from './functions'
 import { StarObject } from '../../shared/interfaces'
 import { SkyObject } from '../SkyObject'
-import { ConstellationObject } from '../../shared/interfaces/interfaces'
+import {
+  ConstellationObject,
+  ConstellationStars
+} from '../../shared/interfaces/interfaces'
+import { Constellation } from '../ConstellationObject'
 
 interface YPixel {
   [y: number]: StarObject | StarObject[]
@@ -67,13 +71,18 @@ interface SkyMapProps {
   constellations: ConstellationObject[]
   onStarSelect: (star: StarObject) => void
   editedStar?: StarObject
+  onConstellationUpdate: (
+    updatedConstellation: ConstellationObject,
+    index: number
+  ) => void
 }
 
 const SkyMap = ({
   stars,
   constellations,
   onStarSelect,
-  editedStar = undefined
+  editedStar = undefined,
+  onConstellationUpdate
 }: SkyMapProps) => {
   const starMap = useRef<StarMap | null>(null)
   const mapContainer = useRef<HTMLDivElement>(null)
@@ -81,15 +90,12 @@ const SkyMap = ({
   const [skyObjects, setSkyObjects] = useState<StarObject[]>(stars)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const canvasOffsetxX = useRef<number>(0)
-  const canvasOffsetY = useRef<number>(0)
 
   useEffect(() => {
+    console.log('stars updated')
     if (stars.length !== skyObjects.length) {
       setSkyObjects(stars)
     } else {
-      let changedObject = undefined
-
       skyObjects.forEach((object, index) => {
         const passedObj = stars[index]
 
@@ -126,6 +132,10 @@ const SkyMap = ({
 
     return undefined
   }
+
+  useEffect(() => {
+    console.log({ skyObjects })
+  }, [skyObjects])
 
   function handleGenericPointer(event: React.PointerEvent<HTMLDivElement>) {
     const boundingRect = event.currentTarget.getBoundingClientRect()
@@ -173,6 +183,31 @@ const SkyMap = ({
     }
   }, [canvasRef])
 
+  function handlePositionUpdate(star: StarObject, x: number, y: number) {
+    const constellationIndex = constellations.findIndex(
+      (constellation) => constellation.starConnections[star.id]
+    )
+
+    if (constellationIndex >= 0) {
+      const updatedConstellation = {
+        ...constellations[constellationIndex]
+      } as ConstellationObject
+
+      const updatedStar = { ...star, positionX: x, positionY: y } as StarObject
+
+      Object.entries(updatedConstellation.starConnections).forEach(
+        (entry: ConstellationStars) => {
+          if (entry[1].origin.id === updatedStar.id)
+            entry[1].origin = updatedStar
+          if (entry[1].destination.id === updatedStar.id)
+            entry[1].destination = updatedStar
+        }
+      )
+
+      onConstellationUpdate(updatedConstellation, constellationIndex)
+    }
+  }
+
   return (
     <div
       className=" relative h-full w-full min-h-48 bg-slate-900"
@@ -186,9 +221,13 @@ const SkyMap = ({
             editing={editedStar?.id === object.id}
             parentRef={mapContainer}
             skyObject={object}
-            starConnections={constellations[0].}
             onClick={(event) => onStarSelect(object)}
+            onPositionUpdate={handlePositionUpdate}
           />
+        ))}
+
+        {constellations.map((constellation) => (
+          <Constellation constellation={constellation} />
         ))}
       </>
     </div>

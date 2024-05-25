@@ -2,12 +2,12 @@ import { StarObject } from '../../../shared/interfaces'
 
 function drawConnection(
   ctx: CanvasRenderingContext2D,
-  beginPosition: [x: number, y: number],
-  connection: StarObject
+  origin: StarObject,
+  destination: StarObject
 ) {
   ctx.beginPath()
-  ctx.moveTo(beginPosition[0], beginPosition[1])
-  ctx.lineTo(connection.positionX, connection.positionY)
+  ctx.moveTo(origin.positionX, origin.positionY)
+  ctx.lineTo(destination.positionX, destination.positionY)
 
   ctx.lineWidth = 3
   ctx.strokeStyle = 'white'

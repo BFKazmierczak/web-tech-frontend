@@ -55,28 +55,38 @@ const HomePage = () => {
       id: 1,
       name: 'test constellation',
       starConnections: {
-        1: [stars[1]],
-        2: [stars[2]]
+        1: {
+          origin: stars[0],
+          destination: stars[1]
+        },
+        2: {
+          origin: stars[1],
+          destination: stars[2]
+        },
+        3: {
+          origin: stars[2],
+          destination: stars[2]
+        }
       }
     }
   ])
 
-  useEffect(() => {
-    const starsConstellations: { [key: number]: ConstellationObject } = {}
+  // useEffect(() => {
+  //   const starsConstellations: { [key: number]: ConstellationObject } = {}
 
-    constellations.forEach((constellation) => {
-      Object.keys(constellation.starConnections).forEach((key) => {
-        starsConstellations[Number(key)] = constellation
-      })
-    })
+  //   constellations.forEach((constellation) => {
+  //     Object.keys(constellation.starConnections).forEach((key) => {
+  //       starsConstellations[Number(key)] = constellation
+  //     })
+  //   })
 
-    setStars((prevStars) =>
-      prevStars.map((star) => ({
-        ...star,
-        constellation: starsConstellations[star.id]
-      }))
-    )
-  }, [constellations])
+  //   setStars((prevStars) =>
+  //     prevStars.map((star) => ({
+  //       ...star,
+  //       constellation: starsConstellations[star.id]
+  //     }))
+  //   )
+  // }, [constellations])
 
   useEffect(() => {
     if (selectedStar) setDrawerOpen(true)
@@ -107,6 +117,13 @@ const HomePage = () => {
         constellations={constellations}
         onStarSelect={setSelectedStar}
         editedStar={editedObject}
+        onConstellationUpdate={(constellation, index) => {
+          setConstellations((prev) => {
+            const newArr = [...prev]
+            newArr[index] = constellation
+            return newArr
+          })
+        }}
       />
 
       <hr />
