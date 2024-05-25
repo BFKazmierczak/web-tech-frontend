@@ -1,11 +1,12 @@
-import React, { RefObject, useEffect, useRef, useState } from 'react'
+import React, { RefObject, createRef, useEffect, useRef, useState } from 'react'
 import { StarObject } from '../../shared/interfaces'
-import { drawStar } from '../SkyMap/functions'
+import { drawConnection, drawStar } from '../SkyMap/functions'
 import { relative } from 'path'
 
 interface SkyObjectProps {
   parentRef: RefObject<HTMLDivElement>
   skyObject: StarObject
+  starConnections: StarObject[]
   onClick: (event: React.MouseEvent<HTMLDivElement>) => void
   editing?: boolean
 }
@@ -13,11 +14,13 @@ interface SkyObjectProps {
 const SkyObject = ({
   parentRef,
   skyObject,
+  starConnections,
   onClick,
   editing = false
 }: SkyObjectProps) => {
   const objectRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const connectionRefs: { [id: number | string]: HTMLCanvasElement } = {}
 
   const [innerSkyObject, setInnerSkyObject] = useState<StarObject>(skyObject)
 
@@ -43,14 +46,8 @@ const SkyObject = ({
       2 * (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
     )
 
-    console.log(skyObject)
-    console.log(innerSkyObject)
-
     const widthDiff = passedObjectWidth - innerObjectWidth
     const heightDiff = passedObjectHeight - innerObjectHeight
-
-    console.log('WIDTH DIFFERENCE:', widthDiff)
-    console.log('HEIGHT DIFFERENCE:', heightDiff)
 
     const div = objectRef.current
     if (div) {
@@ -67,6 +64,9 @@ const SkyObject = ({
     const div = objectRef.current
     if (div) {
       div.style.transform = `translateX(${transform.x}px) translateY(${transform.y}px)`
+      setInnerSkyObject((prev) => {
+        return { ...prev }
+      })
     }
   }, [transform, objectRef.current])
 
@@ -84,8 +84,8 @@ const SkyObject = ({
       const relativeX = innerSkyObject.positionX - skyObjectWidth / 2
       const relativeY = innerSkyObject.positionY - skyObjectHeight / 2
 
-      console.log('POS:', innerSkyObject.positionX, innerSkyObject.positionY)
-      console.log({ skyObjectWidth, skyObjectHeight })
+      // console.log('POS:', innerSkyObject.positionX, innerSkyObject.positionY)
+      // console.log({ skyObjectWidth, skyObjectHeight })
 
       setTransform({
         x: relativeX,
@@ -101,6 +101,7 @@ const SkyObject = ({
 
   useEffect(() => {
     const canvas = canvasRef.current
+
     const ctx = canvas?.getContext('2d')
 
     if (ctx && canvas) {
@@ -113,6 +114,60 @@ const SkyObject = ({
       drawStar(ctx, innerSkyObject)
     }
   }, [canvasRef, innerSkyObject])
+
+  useEffect(() => {
+    const starConnections =
+      innerSkyObject.constellation?.starConnections[innerSkyObject.id]
+
+    if (
+      starConnections !== undefined &&
+      Object.keys(connectionRefs).length === starConnections.length
+    ) {
+      Object.entries(connectionRefs).forEach((entry) => {
+        const starId = entry[0]
+        const canvas = entry[1]
+        const ctx = canvas.getContext('2d')
+
+        const connectedStar = starConnections.find(
+          (star) => star.id === Number(starId)
+        )
+
+        if (ctx && connectedStar) {
+          const parent = canvas.parentElement
+
+          if (parent) {
+            const { width, height } = parent.getBoundingClientRect()
+
+            canvas.width = width
+            canvas.height = height
+          }
+
+          console.log(
+            'position:',
+            innerSkyObject.positionX,
+            innerSkyObject.positionY
+          )
+
+          console.log('wtf?')
+
+          const x =
+            transform.x +
+            (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
+          const y =
+            transform.y +
+            (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
+
+          const beginPositions = [x, y] as [x: number, y: number]
+
+          drawConnection(ctx, beginPositions, connectedStar)
+        }
+      })
+    }
+  }, [connectionRefs, transform])
+
+  useEffect(() => {
+    console.log('style effect:', objectRef.current?.style.transform)
+  }, [objectRef.current?.style])
 
   useEffect(() => {
     if (editing && objectRef.current)
@@ -137,7 +192,10 @@ const SkyObject = ({
         const offsetX = relativePointerX - objectCenterX
         const offsetY = relativePointerY - objectCenterY
 
-        div.style.transform = `translateX(${offsetX}px) translateY(${offsetY}px)`
+        setTransform({
+          x: offsetX,
+          y: offsetY
+        })
       }
     }
   }
@@ -147,14 +205,26 @@ const SkyObject = ({
   }
 
   return (
-    <div
-      ref={objectRef}
-      className=" absolute"
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onClick={onClick}>
-      <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
-    </div>
+    <>
+      <div
+        ref={objectRef}
+        className=" absolute z-10"
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onClick={onClick}>
+        <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
+      </div>
+
+      {starConnections.map((connectedStar) => (
+        <div className=" absolute" style={{ width: '100%', height: '100%' }}>
+          <canvas
+            ref={(ref) => {
+              if (ref) connectionRefs[connectedStar.id] = ref
+            }}
+          />
+        </div>
+      ))}
+    </>
   )
 }
 

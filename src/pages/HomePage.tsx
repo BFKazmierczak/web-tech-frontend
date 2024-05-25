@@ -16,8 +16,8 @@ const HomePage = () => {
     {
       id: 1,
       name: 'Gwiazda Betlejemska',
-      positionX: 250,
-      positionY: 80,
+      positionX: 370,
+      positionY: 60,
       spikes: 9,
       innerRadius: 5,
       outerRadius: 15,
@@ -27,8 +27,8 @@ const HomePage = () => {
     {
       id: 2,
       name: 'Alpha Centauri',
-      positionX: 0,
-      positionY: 0,
+      positionX: 100,
+      positionY: 100,
       spikes: 11,
       innerRadius: 10,
       outerRadius: 40,
@@ -38,8 +38,8 @@ const HomePage = () => {
     {
       id: 3,
       name: 'Beta Centauri',
-      positionX: 50,
-      positionY: 50,
+      positionX: 250,
+      positionY: 120,
       spikes: 11,
       innerRadius: 10,
       outerRadius: 40,
@@ -60,6 +60,23 @@ const HomePage = () => {
       }
     }
   ])
+
+  useEffect(() => {
+    const starsConstellations: { [key: number]: ConstellationObject } = {}
+
+    constellations.forEach((constellation) => {
+      Object.keys(constellation.starConnections).forEach((key) => {
+        starsConstellations[Number(key)] = constellation
+      })
+    })
+
+    setStars((prevStars) =>
+      prevStars.map((star) => ({
+        ...star,
+        constellation: starsConstellations[star.id]
+      }))
+    )
+  }, [constellations])
 
   useEffect(() => {
     if (selectedStar) setDrawerOpen(true)

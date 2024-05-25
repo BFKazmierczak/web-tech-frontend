@@ -133,8 +133,6 @@ const SkyMap = ({
     const pointerX = event.clientX - boundingRect.left
     const pointerY = event.clientY - boundingRect.top
 
-    console.log('PARENT:', { pointerX, pointerY })
-
     // const foundStar = getStar(pointerX, pointerY)
 
     // if (canvasRef.current) {
@@ -185,10 +183,10 @@ const SkyMap = ({
         {skyObjects.map((object) => (
           <SkyObject
             key={object.id}
-            // connectedTo={}
             editing={editedStar?.id === object.id}
             parentRef={mapContainer}
             skyObject={object}
+            starConnections={constellations[0].}
             onClick={(event) => onStarSelect(object)}
           />
         ))}

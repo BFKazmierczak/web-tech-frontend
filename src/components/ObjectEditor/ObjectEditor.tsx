@@ -46,8 +46,6 @@ const ObjectEditor = ({
           newValue = event.target.value
         }
 
-        console.log(newValue)
-
         obj[key] = newValue as StarObject[T]
       } else {
         obj[key] = value as StarObject[T]
