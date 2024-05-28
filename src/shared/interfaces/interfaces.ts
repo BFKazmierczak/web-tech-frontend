@@ -4,10 +4,18 @@ type AssertPositive<N extends number> = number extends N
   ? never
   : N
 
+export type ConstellationConnection = {
+  origin: StarObject
+  destination: StarObject | undefined
+}
+
 export interface ConstellationStars {
-  [starId: number]: {
-    origin: StarObject
-    destination: StarObject
+  [starId: number]: ConstellationConnection
+}
+
+export interface ConstellationHighlight {
+  [constellationId: number]: {
+    [originId: number]: ConstellationConnection
   }
 }
 
@@ -29,3 +37,12 @@ export interface ConstellationObject {
   name: string
   starConnections: ConstellationStars
 }
+
+export type Display =
+  | 'main'
+  | 'editor'
+  | 'draft'
+  | 'selectedStar'
+  | 'constellations'
+  | 'selectedConstellation'
+  | 'newConstellation'

@@ -31,8 +31,10 @@ function drawStar(ctx: CanvasRenderingContext2D, star: StarObject) {
   ctx.lineTo(cx, cy - outerRadius)
   ctx.closePath()
   ctx.lineWidth = 1
-  ctx.strokeStyle = 'white'
-  ctx.stroke()
+
+  ctx.shadowBlur = 1 * star.layer
+  ctx.shadowColor = star.color
+
   ctx.fillStyle = star.color
   ctx.fill()
 }

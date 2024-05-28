@@ -10,6 +10,7 @@ import { drawStar, moveObject } from './functions'
 import { StarObject } from '../../shared/interfaces'
 import { SkyObject } from '../SkyObject'
 import {
+  ConstellationHighlight,
   ConstellationObject,
   ConstellationStars
 } from '../../shared/interfaces/interfaces'
@@ -68,7 +69,11 @@ function insertStar(
 
 interface SkyMapProps {
   stars: StarObject[]
+  draftStar?: StarObject
+  disableChanges?: boolean
   constellations: ConstellationObject[]
+  draftConstellation?: ConstellationObject
+  highlightedConstellations: ConstellationHighlight
   onStarSelect: (star: StarObject) => void
   editedStar?: StarObject
   onConstellationUpdate: (
@@ -79,7 +84,11 @@ interface SkyMapProps {
 
 const SkyMap = ({
   stars,
+  draftStar,
+  disableChanges = false,
   constellations,
+  draftConstellation,
+  highlightedConstellations,
   onStarSelect,
   editedStar = undefined,
   onConstellationUpdate
@@ -133,49 +142,13 @@ const SkyMap = ({
     return undefined
   }
 
-  useEffect(() => {
-    console.log({ skyObjects })
-  }, [skyObjects])
-
   function handleGenericPointer(event: React.PointerEvent<HTMLDivElement>) {
     const boundingRect = event.currentTarget.getBoundingClientRect()
-
-    const pointerX = event.clientX - boundingRect.left
-    const pointerY = event.clientY - boundingRect.top
-
-    // const foundStar = getStar(pointerX, pointerY)
-
-    // if (canvasRef.current) {
-    //   if (foundStar) {
-    //     if (!Array.isArray(foundStar)) {
-    //       const ctx = canvasRef.current.getContext('2d')
-
-    //       if (ctx) {
-    //         moveObject(ctx, pointerX, pointerY)
-    //       }
-    //     }
-    //   }
-    // }
   }
 
   function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
     if (event.buttons > 0) handleGenericPointer(event)
   }
-
-  // useEffect(() => {
-  //   if (stars.length) {
-  //     stars.forEach((star) => {
-  //       const starPixels = getPixelsInCircle(star.cx, star.cy, star.innerRadius)
-  //       starPixels.forEach((pixel) => insertStar(starMap, pixel, star))
-  //     })
-
-  //     console.log({ starMap })
-  //   }
-
-  //   return () => {
-  //     starMap.current = null
-  //   }
-  // }, [stars])
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -199,7 +172,7 @@ const SkyMap = ({
         (entry: ConstellationStars) => {
           if (entry[1].origin.id === updatedStar.id)
             entry[1].origin = updatedStar
-          if (entry[1].destination.id === updatedStar.id)
+          if (entry[1].destination?.id === updatedStar.id)
             entry[1].destination = updatedStar
         }
       )
@@ -219,16 +192,42 @@ const SkyMap = ({
           <SkyObject
             key={object.id}
             editing={editedStar?.id === object.id}
+            otherEdited={editedStar && editedStar.id !== object.id}
             parentRef={mapContainer}
             skyObject={object}
-            onClick={(event) => onStarSelect(object)}
+            preventChanges={disableChanges}
+            onClick={(event) => {
+              if (!draftStar) onStarSelect(object)
+            }}
             onPositionUpdate={handlePositionUpdate}
           />
         ))}
 
         {constellations.map((constellation) => (
-          <Constellation constellation={constellation} />
+          <Constellation
+            constellation={constellation}
+            highlight={highlightedConstellations[constellation.id]}
+          />
         ))}
+
+        {draftStar && (
+          <SkyObject
+            key={draftStar.id}
+            editing
+            otherEdited={editedStar && editedStar.id !== draftStar.id}
+            parentRef={mapContainer}
+            skyObject={draftStar}
+            onClick={(event) => {}}
+            onPositionUpdate={handlePositionUpdate}
+          />
+        )}
+
+        {draftConstellation && (
+          <Constellation
+            constellation={draftConstellation}
+            highlight={highlightedConstellations[draftConstellation.id]}
+          />
+        )}
       </>
     </div>
   )

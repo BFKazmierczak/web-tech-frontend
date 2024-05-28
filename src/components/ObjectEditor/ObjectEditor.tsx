@@ -6,7 +6,7 @@ import { Button, Input, capitalize } from '@mui/material'
 interface ObjectEditorProps {
   skyObject: StarObject
   onObjectChange: (obj: StarObject) => void
-  onSaveChanges: () => void
+  onSaveChanges: (star: StarObject) => void
 }
 
 const ObjectEditor = ({
@@ -55,10 +55,16 @@ const ObjectEditor = ({
     })
   }
 
+  function handleObjectSave(event: React.MouseEvent<HTMLButtonElement>) {
+    onSaveChanges(skyObject)
+  }
+
   return (
     <div className=" relative flex flex-col gap-y-3 w-full px-5 sm:w-[600px]">
       <span className=" flex gap-x-1">
-        <span className=" font-light">Edytowanie:</span>
+        <span className=" font-light">
+          {skyObject.id === -1 ? 'Dodawanie:' : 'Edytowanie:'}
+        </span>
         {skyObject?.name}
       </span>
 
@@ -147,8 +153,8 @@ const ObjectEditor = ({
         </div>
       </div>
 
-      <Button variant="outlined" onClick={() => onSaveChanges()}>
-        Zatwierdź zmiany
+      <Button variant="outlined" onClick={handleObjectSave}>
+        {skyObject.id === -1 ? 'Gotowe' : 'Zatwierdź zmiany'}
       </Button>
     </div>
   )

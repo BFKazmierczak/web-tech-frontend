@@ -6,8 +6,10 @@ import { relative } from 'path'
 interface SkyObjectProps {
   parentRef: RefObject<HTMLDivElement>
   skyObject: StarObject
-  onClick: (event: React.MouseEvent<HTMLDivElement>) => void
+  onClick: (event: React.SyntheticEvent) => void
   editing?: boolean
+  otherEdited?: boolean
+  preventChanges?: boolean
   onPositionUpdate: (star: StarObject, x: number, y: number) => void
 }
 
@@ -16,6 +18,8 @@ const SkyObject = ({
   skyObject,
   onClick,
   editing = false,
+  otherEdited = false,
+  preventChanges = false,
   onPositionUpdate
 }: SkyObjectProps) => {
   const objectRef = useRef<HTMLDivElement>(null)
@@ -172,15 +176,18 @@ const SkyObject = ({
   // }, [connectionRefs, transform])
 
   useEffect(() => {
-    if (editing && objectRef.current)
-      objectRef.current.style.border = '2px dotted red'
+    if (objectRef.current) {
+      if (editing) objectRef.current.style.outline = '2px dotted red'
+      else objectRef.current.style.outline = 'none'
+    }
   }, [editing, objectRef])
 
   function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
     if (event.buttons > 0) {
+      onClick(event)
       const div = event.currentTarget
       if (parentRef.current) {
-        div.style.border = '2px dotted red'
+        div.style.outline = '2px dotted red'
 
         const parentBoundingRect = parentRef.current.getBoundingClientRect()
         const boundingRect = div.getBoundingClientRect()
@@ -202,8 +209,42 @@ const SkyObject = ({
     }
   }
 
-  function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
-    if (!editing) event.currentTarget.style.border = 'none'
+  function handlePointerUp(
+    event: React.PointerEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+  ) {
+    if (!editing) event.currentTarget.style.outline = 'none'
+  }
+
+  function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
+    const div = event.currentTarget
+    const touch = event.touches[0]
+    if (parentRef.current) {
+      div.style.outline = '2px dotted red'
+
+      const parentBoundingRect = parentRef.current.getBoundingClientRect()
+      const boundingRect = div.getBoundingClientRect()
+
+      const relativePointerX = touch.clientX - parentBoundingRect.left
+      const relativePointerY = touch.clientY - parentBoundingRect.top
+
+      const objectCenterX = boundingRect.width / 2
+      const objectCenterY = boundingRect.height / 2
+
+      const offsetX = relativePointerX - objectCenterX
+      const offsetY = relativePointerY - objectCenterY
+
+      setTransform({
+        x: offsetX,
+        y: offsetY
+      })
+    }
+  }
+
+  function handleGenericMoveEvent(event: React.SyntheticEvent<HTMLDivElement>) {
+    if (!otherEdited && !preventChanges) {
+      if (event.type === 'pointermove')
+        handlePointerMove(event as React.PointerEvent<HTMLDivElement>)
+    }
   }
 
   return (
@@ -211,8 +252,11 @@ const SkyObject = ({
       <div
         ref={objectRef}
         className=" absolute z-10"
-        onPointerMove={handlePointerMove}
+        onPointerMove={handleGenericMoveEvent}
         onPointerUp={handlePointerUp}
+        onTouchStart={(event) => event.preventDefault()}
+        onTouchEnd={handlePointerUp}
+        onTouchMove={handleGenericMoveEvent}
         onClick={onClick}>
         <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
       </div>
