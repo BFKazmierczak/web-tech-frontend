@@ -9,11 +9,13 @@ import { drawConnection } from '../SkyMap/functions'
 interface ConstellationProps {
   constellation: ConstellationObject
   highlight?: ConstellationHighlight
+  draft?: boolean
 }
 
 const Constellation = ({
   constellation,
-  highlight = {}
+  highlight = {},
+  draft = false
 }: ConstellationProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 

@@ -19,6 +19,10 @@ import {
   ConstellationTile
 } from '../components/ConstellationComponents'
 import { Add } from '@mui/icons-material'
+import axios from 'axios'
+
+const apiToken =
+  '85bd68be469190334cbfee55c9b32cad23e6da4d44144fac8be69dd0766cb6079510e9d8189bbd73cb48867b009fc13fd08a0577c07174ddb167d6434dcd0280692bd45363070bdaaba47eac0aa054af42bb8d8828fb931cec3548cbd3903f64a49df09673dd9b98e9480c41ddaee75a2b04a11f88e583bb338d103ca86fe7ca'
 
 const HomePage = () => {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
@@ -105,6 +109,21 @@ const HomePage = () => {
     if (!drawerOpen) setSelectedStar(undefined)
   }, [drawerOpen])
 
+  useEffect(() => {
+    axios({
+      method: 'GET',
+      url: 'http://localhost:1337/api/stars',
+      headers: {
+        Authorization: `bearer ${apiToken}`
+      }
+    }).then((result) => {
+      if (result.status === 200) {
+        const stars = result.data.data as StarObject[]
+        setStars(stars)
+      }
+    })
+  }, [])
+
   function handleObjectChange(obj: StarObject) {
     const indexOf = stars.findIndex((object) => object.id === obj.id)
 
@@ -128,18 +147,19 @@ const HomePage = () => {
 
         const entry = newConnections[star.id]
 
-        console.log({ entry })
-
-        // sprawdź czy istnieje jakiś bez destination
-        const noDestinationConnection = Object.values(newConnections).find(
+        const connectionWithoutDestination = Object.values(newConnections).find(
           (connection: ConstellationConnection) =>
-            connection.destination === undefined
+            connection.destination === undefined &&
+            connection.origin.id !== star.id
         )
 
-        if (entry === undefined) {
+        if (!entry && !connectionWithoutDestination) {
           newConnections[star.id] = { origin: star, destination: undefined }
-        } else if (entry && entry.destination === undefined) {
-          newConnections[star.id] = { ...entry, destination: star }
+        } else if (connectionWithoutDestination) {
+          newConnections[connectionWithoutDestination.origin.id] = {
+            origin: connectionWithoutDestination.origin,
+            destination: star
+          }
         }
 
         return {
@@ -211,21 +231,35 @@ const HomePage = () => {
         </>
       )}
 
-      {display === 'editor' && (
+      {display === 'editor' && editedObject && (
         <ObjectEditor
-          skyObject={editedObject as StarObject}
+          skyObject={editedObject}
           onObjectChange={handleObjectChange}
           onSaveChanges={(star) => setEditedObject(undefined)}
         />
       )}
 
-      {display === 'draft' && (
+      {display === 'draft' && draftObject && (
         <ObjectEditor
-          skyObject={draftObject as StarObject}
+          skyObject={draftObject}
           onObjectChange={handleDraftChange}
           onSaveChanges={(newStar) => {
+            console.log({ newStar })
+
+            axios.post(
+              'http://localhost:1337/api/stars',
+              {
+                attributes: { ...newStar, id: undefined }
+              },
+              {
+                headers: {
+                  Authorization: `bearer ${apiToken}`
+                }
+              }
+            )
+
+            // setStars((prev) => [...prev, newStar])
             setDraftObject(undefined)
-            setStars((prev) => [...prev, newStar])
           }}
         />
       )}
@@ -236,6 +270,7 @@ const HomePage = () => {
           <div className=" flex flex-col gap-y-1">
             {constellations.map((constellation) => (
               <ConstellationTile
+                key={constellation.id}
                 constellation={constellation}
                 onClick={(constellation) => {
                   setSelectedConstellation(constellation)
@@ -267,6 +302,7 @@ const HomePage = () => {
                 <>
                   {index !== array.length - 1 && (
                     <ConstellationConnectionDisplay
+                      key={value.origin.id}
                       connection={value}
                       onMouseEnter={(event, connection) => {
                         const newHighlight = {
@@ -290,6 +326,11 @@ const HomePage = () => {
       {display === 'newConstellation' && (
         <ConstellationCreator
           starConnections={draftConstellation.starConnections}
+          onConstellationCreate={(constellation) => {
+            setConstellations((prev) => [...prev, constellation])
+            setDraftConstellation((prev) => ({ ...prev, starConnections: {} }))
+            setDisplay('main')
+          }}
         />
       )}
 
