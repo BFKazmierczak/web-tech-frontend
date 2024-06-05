@@ -132,56 +132,6 @@ const SkyObject = ({
     }
   }, [canvasRef, innerSkyObject])
 
-  // useEffect(() => {
-  //   const starConnections =
-  //     innerSkyObject.constellation?.starConnections[innerSkyObject.id]
-
-  //   if (
-  //     starConnections !== undefined &&
-  //     Object.keys(connectionRefs).length === starConnections.length
-  //   ) {
-  //     Object.entries(connectionRefs).forEach((entry) => {
-  //       const starId = entry[0]
-  //       const canvas = entry[1]
-  //       const ctx = canvas.getContext('2d')
-
-  //       const connectedStar = starConnections.find(
-  //         (star) => star.id === Number(starId)
-  //       )
-
-  //       if (ctx && connectedStar) {
-  //         const parent = canvas.parentElement
-
-  //         if (parent) {
-  //           const { width, height } = parent.getBoundingClientRect()
-
-  //           canvas.width = width
-  //           canvas.height = height
-  //         }
-
-  //         console.log(
-  //           'position:',
-  //           innerSkyObject.positionX,
-  //           innerSkyObject.positionY
-  //         )
-
-  //         console.log('wtf?')
-
-  //         const x =
-  //           transform.x +
-  //           (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
-  //         const y =
-  //           transform.y +
-  //           (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
-
-  //         const beginPositions = [x, y] as [x: number, y: number]
-
-  //         drawConnection(ctx, beginPositions, connectedStar)
-  //       }
-  //     })
-  //   }
-  // }, [connectionRefs, transform])
-
   useEffect(() => {
     if (objectRef.current) {
       if (editing) objectRef.current.style.outline = '2px dotted red'

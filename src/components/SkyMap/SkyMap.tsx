@@ -1,12 +1,5 @@
-import React, {
-  MutableRefObject,
-  ReactElement,
-  ReactNode,
-  useEffect,
-  useRef,
-  useState
-} from 'react'
-import { drawStar, moveObject } from './functions'
+import React, { useEffect, useRef, useState } from 'react'
+import { drawStar } from './functions'
 import { StarObject } from '../../shared/interfaces'
 import { SkyObject } from '../SkyObject'
 import {
@@ -15,57 +8,6 @@ import {
   ConstellationStars
 } from '../../shared/interfaces/interfaces'
 import { Constellation } from '../ConstellationObject'
-
-interface YPixel {
-  [y: number]: StarObject | StarObject[]
-}
-
-interface StarMap {
-  [x: number]: YPixel
-}
-
-function getPixelsInCircle(x0: number, y0: number, radius: number) {
-  let pixels: [number, number][] = []
-
-  // Iterate through each pixel in a bounding box that encloses the circle
-  for (let x = x0 - radius; x <= x0 + radius; x++) {
-    for (let y = y0 - radius; y <= y0 + radius; y++) {
-      // Calculate the distance between the current pixel and the circle's center
-      let distance = Math.sqrt(Math.pow(x - x0, 2) + Math.pow(y - y0, 2))
-      // If the distance is less than or equal to the radius, the pixel is inside the circle
-      if (distance <= radius) {
-        pixels.push([x, y])
-      }
-    }
-  }
-
-  return pixels
-}
-
-function insertStar(
-  mapRef: MutableRefObject<StarMap | null>,
-  pixel: [number, number],
-  star: StarObject
-) {
-  if (!mapRef.current) mapRef.current = {}
-
-  if (mapRef.current[pixel[0]] === undefined) {
-    mapRef.current[pixel[0]] = {}
-    mapRef.current[pixel[0]][pixel[1]] = star
-  } else {
-    if (mapRef.current[pixel[0]][pixel[1]] === undefined) {
-      mapRef.current[pixel[0]][pixel[1]] = star
-    } else {
-      const object = mapRef.current[pixel[0]][pixel[1]]
-
-      if (Array.isArray(object)) {
-        mapRef.current[pixel[0]][pixel[1]] = [...object, star]
-      } else {
-        mapRef.current[pixel[0]][pixel[1]] = [object, star]
-      }
-    }
-  }
-}
 
 interface SkyMapProps {
   stars: StarObject[]
@@ -93,7 +35,6 @@ const SkyMap = ({
   editedStar = undefined,
   onConstellationUpdate
 }: SkyMapProps) => {
-  const starMap = useRef<StarMap | null>(null)
   const mapContainer = useRef<HTMLDivElement>(null)
 
   const [skyObjects, setSkyObjects] = useState<StarObject[]>(stars)
@@ -128,18 +69,6 @@ const SkyMap = ({
     if (ctx) {
       stars.forEach((star) => drawStar(ctx, star))
     }
-  }
-
-  function getStar(x: number, y: number) {
-    if (starMap.current) {
-      if (starMap.current[x] && starMap.current[x][y]) {
-        const star = starMap.current[x][y]
-
-        return star
-      }
-    }
-
-    return undefined
   }
 
   function handleGenericPointer(event: React.PointerEvent<HTMLDivElement>) {
