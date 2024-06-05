@@ -1,12 +1,19 @@
-import React, { RefObject, createRef, useEffect, useRef, useState } from 'react'
+import {
+  SyntheticEvent,
+  PointerEvent,
+  TouchEvent,
+  RefObject,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 import { StarObject } from '../../shared/interfaces'
 import { drawConnection, drawStar } from '../SkyMap/functions'
-import { relative } from 'path'
 
 interface SkyObjectProps {
   parentRef: RefObject<HTMLDivElement>
   skyObject: StarObject
-  onClick: (event: React.SyntheticEvent) => void
+  onClick: (event: SyntheticEvent) => void
   editing?: boolean
   otherEdited?: boolean
   preventChanges?: boolean
@@ -182,8 +189,8 @@ const SkyObject = ({
     }
   }, [editing, objectRef])
 
-  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
-    if (event.buttons > 0) {
+  function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
+    if (event.buttons > 0 && editing) {
       onClick(event)
       const div = event.currentTarget
       if (parentRef.current) {
@@ -210,12 +217,12 @@ const SkyObject = ({
   }
 
   function handlePointerUp(
-    event: React.PointerEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+    event: PointerEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>
   ) {
     if (!editing) event.currentTarget.style.outline = 'none'
   }
 
-  function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
+  function handleTouchMove(event: TouchEvent<HTMLDivElement>) {
     const div = event.currentTarget
     const touch = event.touches[0]
     if (parentRef.current) {
@@ -240,10 +247,10 @@ const SkyObject = ({
     }
   }
 
-  function handleGenericMoveEvent(event: React.SyntheticEvent<HTMLDivElement>) {
+  function handleGenericMoveEvent(event: SyntheticEvent<HTMLDivElement>) {
     if (!otherEdited && !preventChanges) {
       if (event.type === 'pointermove')
-        handlePointerMove(event as React.PointerEvent<HTMLDivElement>)
+        handlePointerMove(event as PointerEvent<HTMLDivElement>)
     }
   }
 

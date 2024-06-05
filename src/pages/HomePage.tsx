@@ -244,21 +244,15 @@ const HomePage = () => {
           skyObject={draftObject}
           onObjectChange={handleDraftChange}
           onSaveChanges={(newStar) => {
-            console.log({ newStar })
-
-            axios.post(
-              'http://localhost:1337/api/stars',
-              {
-                attributes: { ...newStar, id: undefined }
-              },
-              {
-                headers: {
-                  Authorization: `bearer ${apiToken}`
-                }
+            axios('http://localhost:1337/api/stars', {
+              method: 'POST',
+              data: { data: { ...newStar, id: undefined } },
+              headers: {
+                Authorization: `bearer ${apiToken}`
               }
-            )
+            })
 
-            // setStars((prev) => [...prev, newStar])
+            setStars((prev) => [...prev, newStar])
             setDraftObject(undefined)
           }}
         />
