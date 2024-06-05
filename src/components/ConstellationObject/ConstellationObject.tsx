@@ -33,8 +33,6 @@ const Constellation = ({
         canvas.height = height
       }
 
-      console.log({ highlight })
-
       if (ctx) {
         Object.entries(constellation.starConnections).forEach(
           (entry: ConstellationStars) => {

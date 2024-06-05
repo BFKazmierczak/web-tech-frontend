@@ -22,6 +22,7 @@ interface SkyMapProps {
     updatedConstellation: ConstellationObject,
     index: number
   ) => void
+  onPositionUpdate: (star: StarObject) => void
 }
 
 const SkyMap = ({
@@ -33,7 +34,8 @@ const SkyMap = ({
   highlightedConstellations,
   onStarSelect,
   editedStar = undefined,
-  onConstellationUpdate
+  onConstellationUpdate,
+  onPositionUpdate
 }: SkyMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null)
 
@@ -42,7 +44,6 @@ const SkyMap = ({
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    console.log('stars updated')
     if (stars.length !== skyObjects.length) {
       setSkyObjects(stars)
     } else {
@@ -89,6 +90,10 @@ const SkyMap = ({
     const constellationIndex = constellations.findIndex(
       (constellation) => constellation.starConnections[star.id]
     )
+
+    if (editedStar?.id === star.id || draftStar?.id === star.id) {
+      onPositionUpdate({ ...star, positionX: x, positionY: y })
+    }
 
     if (constellationIndex >= 0) {
       const updatedConstellation = {

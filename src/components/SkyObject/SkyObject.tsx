@@ -80,14 +80,8 @@ const SkyObject = ({
         transform.x + (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
       const y =
         transform.y + (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
-
-      onPositionUpdate(innerSkyObject, x, y)
     }
   }, [transform, objectRef.current])
-
-  useEffect(() => {
-    console.log('NEW INNER OBJECT:', { innerSkyObject })
-  }, [innerSkyObject])
 
   useEffect(() => {
     if (parentRef.current) {
@@ -100,9 +94,6 @@ const SkyObject = ({
 
       const relativeX = innerSkyObject.positionX - skyObjectWidth / 2
       const relativeY = innerSkyObject.positionY - skyObjectHeight / 2
-
-      // console.log('POS:', innerSkyObject.positionX, innerSkyObject.positionY)
-      // console.log({ skyObjectWidth, skyObjectHeight })
 
       setTransform({
         x: relativeX,
@@ -157,6 +148,13 @@ const SkyObject = ({
 
         const offsetX = relativePointerX - objectCenterX
         const offsetY = relativePointerY - objectCenterY
+
+        // druciarstwo przeciw nieskończonej pętli, jeśli pozycja jest zmieniona myszką na mapie
+        const x =
+          offsetX + (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
+        const y =
+          offsetY + (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
+        onPositionUpdate(innerSkyObject, x, y)
 
         setTransform({
           x: offsetX,

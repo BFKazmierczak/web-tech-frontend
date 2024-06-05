@@ -196,6 +196,10 @@ const HomePage = () => {
             return newArr
           })
         }}
+        onPositionUpdate={(star) => {
+          handleObjectChange(star)
+          if (editedObject) setEditedObject(star)
+        }}
       />
 
       <hr />

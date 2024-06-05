@@ -16,8 +16,9 @@ const ObjectEditor = ({
 }: ObjectEditorProps) => {
   const colorRef = useRef<string>(skyObject.color)
 
-  const [values, setValues] = useState<StarObject>(skyObject)
-
+  const [values, setValues] = useState<StarObject>(
+    JSON.parse(JSON.stringify(skyObject))
+  )
   const [showColorPicker, setShowColorPicker] = useState<boolean>(false)
 
   useEffect(() => {
@@ -82,7 +83,7 @@ const ObjectEditor = ({
         </div>
 
         <div className=" flex flex-col gap-y-1 w-1/2">
-          {Object.entries(skyObject).map((entry) => (
+          {Object.entries(values).map((entry) => (
             <>
               {entry[0] !== 'id' && entry[0] !== 'color' && (
                 <div className=" flex items-center h-8">
