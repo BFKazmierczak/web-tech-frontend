@@ -29,6 +29,10 @@ const ObjectEditor = ({
     if (showColorPicker) colorRef.current = skyObject.color
   }, [showColorPicker])
 
+  useEffect(() => {
+    setValues(JSON.parse(JSON.stringify(skyObject)))
+  }, [skyObject])
+
   function handleChange<T extends keyof StarObject>(
     event:
       | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

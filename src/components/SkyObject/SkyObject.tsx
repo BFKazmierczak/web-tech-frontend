@@ -150,10 +150,12 @@ const SkyObject = ({
         const offsetY = relativePointerY - objectCenterY
 
         // druciarstwo przeciw nieskończonej pętli, jeśli pozycja jest zmieniona myszką na mapie
-        const x =
+        const x = Math.round(
           offsetX + (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
-        const y =
+        )
+        const y = Math.round(
           offsetY + (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
+        )
         onPositionUpdate(innerSkyObject, x, y)
 
         setTransform({

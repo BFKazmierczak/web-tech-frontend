@@ -140,6 +140,10 @@ const HomePage = () => {
     setDraftObject(obj)
   }
 
+  useEffect(() => {
+    console.log({ draftObject })
+  }, [draftObject])
+
   function handleStarSelect(star: StarObject) {
     if (display === 'newConstellation') {
       setDraftConstellation((draft) => {
@@ -174,6 +178,36 @@ const HomePage = () => {
       })
       setSelectedStar(star)
     }
+  }
+
+  function handleAcceptChanges(star: StarObject) {
+    axios({
+      url: `http://localhost:1337/api/stars/${star.id}`,
+      method: 'PUT',
+      data: {
+        data: { ...star }
+      },
+      headers: {
+        Authorization: `bearer ${apiToken}`
+      }
+    })
+
+    setEditedObject(undefined)
+  }
+
+  function handleAddStar(star: StarObject) {
+    // fix id error
+    axios({
+      url: 'http://localhost:1337/api/stars',
+      method: 'POST',
+      data: { data: { ...star, id: undefined } },
+      headers: {
+        Authorization: `bearer ${apiToken}`
+      }
+    })
+
+    setStars((prev) => [...prev, star])
+    setDraftObject(undefined)
   }
 
   return (
@@ -239,7 +273,7 @@ const HomePage = () => {
         <ObjectEditor
           skyObject={editedObject}
           onObjectChange={handleObjectChange}
-          onSaveChanges={(star) => setEditedObject(undefined)}
+          onSaveChanges={handleAcceptChanges}
         />
       )}
 
@@ -247,18 +281,7 @@ const HomePage = () => {
         <ObjectEditor
           skyObject={draftObject}
           onObjectChange={handleDraftChange}
-          onSaveChanges={(newStar) => {
-            axios('http://localhost:1337/api/stars', {
-              method: 'POST',
-              data: { data: { ...newStar, id: undefined } },
-              headers: {
-                Authorization: `bearer ${apiToken}`
-              }
-            })
-
-            setStars((prev) => [...prev, newStar])
-            setDraftObject(undefined)
-          }}
+          onSaveChanges={handleAddStar}
         />
       )}
 
@@ -341,14 +364,14 @@ const HomePage = () => {
                 setDisplay('draft')
                 setDraftObject({
                   id: -1,
-                  name: 'Nienazwana gwiazda',
-                  positionX: 370,
-                  positionY: 60,
-                  spikes: 9,
-                  innerRadius: 5,
+                  name: 'Nowa gwiazda',
+                  positionX: 500,
+                  positionY: 100,
+                  spikes: 8,
+                  innerRadius: 3,
                   outerRadius: 15,
-                  layer: 0,
-                  color: '#234445'
+                  layer: 3,
+                  color: '#f7f7f7'
                 })
               }}>
               Dodaj gwiazdę
