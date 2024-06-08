@@ -15,6 +15,15 @@ export function transformConstellations(
         }
       })
 
+      const length = fetchedConstellation.starConnections.length
+      const lastConnection = fetchedConstellation.starConnections[length - 1]
+      if (lastConnection) {
+        mappedConnections[lastConnection.destination.id] = {
+          origin: lastConnection.destination.id,
+          destination: lastConnection.destination.id
+        }
+      }
+
       const newConstellationObject = {
         ...fetchedConstellation,
         starConnections: mappedConnections
@@ -24,5 +33,5 @@ export function transformConstellations(
     }
   )
 
-  return [...mappedConstellations]
+  return mappedConstellations
 }

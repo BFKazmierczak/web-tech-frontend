@@ -93,13 +93,9 @@ const SkyMap = ({
       (constellation) => constellation.starConnections[star.id]
     )
 
-    console.log({ constellations })
-
     if (editedStar?.id === star.id || draftStar?.id === star.id) {
       onPositionUpdate({ ...star, positionX: x, positionY: y })
     }
-
-    console.log({ constellationIndex })
 
     if (constellationIndex >= 0) {
       const updatedConstellation = {
