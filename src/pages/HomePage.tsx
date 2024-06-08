@@ -120,8 +120,6 @@ const HomePage = () => {
       if (result.status === 200) {
         const fetchedConstellations = result.data.data
 
-        console.log({ fetchedConstellations })
-
         setConstellations((prev) =>
           transformConstellations(prev, fetchedConstellations)
         )
@@ -302,8 +300,6 @@ const HomePage = () => {
           onStarSelect={handleStarSelect}
           editedStar={editedObject}
           onConstellationUpdate={(constellation, index) => {
-            console.log('on constellation update')
-
             setConstellations((prev) => {
               const newArr = [...prev]
               newArr[index] = constellation

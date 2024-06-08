@@ -34,7 +34,6 @@ const ObjectEditor = ({
   useEffect(() => {
     if (JSON.stringify(skyObject) !== JSON.stringify(values)) {
       onObjectChange(values)
-      console.log(values.spikes)
     }
   }, [values])
 
