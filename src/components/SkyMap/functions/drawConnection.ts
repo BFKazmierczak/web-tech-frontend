@@ -4,13 +4,16 @@ function drawConnection(
   ctx: CanvasRenderingContext2D,
   origin: StarObject,
   destination: StarObject,
-  highlighted?: boolean
+  highlighted?: boolean,
+  pointerPosition?: { x: number; y: number }
 ) {
   let highlightColor = '#58b9d6'
 
   ctx.beginPath()
   ctx.moveTo(origin.positionX, origin.positionY)
-  ctx.lineTo(destination.positionX, destination.positionY)
+
+  if (pointerPosition) ctx.lineTo(pointerPosition.x, pointerPosition.y)
+  else ctx.lineTo(destination.positionX, destination.positionY)
 
   ctx.lineWidth = 2
   ctx.shadowColor = highlighted ? highlightColor : 'white'

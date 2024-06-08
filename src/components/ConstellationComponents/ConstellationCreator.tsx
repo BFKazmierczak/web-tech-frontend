@@ -4,7 +4,7 @@ import {
   ConstellationStars,
   StarObject
 } from '../../shared/interfaces/interfaces'
-import { Button } from '../Inputs'
+import { Button, Input } from '../Inputs'
 
 interface ConstellationCreatorProps {
   starConnections: ConstellationStars
@@ -55,6 +55,14 @@ const ConstellationCreator = ({
           )
         )}
       </div>
+
+      <Input
+        type="text"
+        value={constellation.name}
+        onChange={(event) => {
+          setConstellation((prev) => ({ ...prev, name: event.target.value }))
+        }}
+      />
 
       <Button onClick={() => onConstellationCreate(constellation)}>
         Zapisz

@@ -307,7 +307,9 @@ const HomePage = () => {
             })
           }}
           onPositionUpdate={(star) => {
-            handleObjectChange(star)
+            if (display === 'draft') handleDraftChange(star)
+            else handleObjectChange(star)
+
             if (editedObject) setEditedObject(star)
           }}
         />
@@ -319,7 +321,10 @@ const HomePage = () => {
         {selectedStar && !editedObject && (
           <div className="flex flex-col w-full p-5 gap-y-1">
             <span className=" font-light">
-              Wybrano: <span className=" font-normal">{selectedStar.name}</span>
+              Wybrano:{' '}
+              <span className=" font-normal">
+                {selectedStar.name} {`(${selectedStar.id})`}
+              </span>
             </span>
             <div className="flex gap-x-3">
               <Button

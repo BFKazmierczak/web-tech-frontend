@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { PointerEvent, useEffect, useRef, useState } from 'react'
 import {
+  ConstellationConnection,
   ConstellationHighlight,
   ConstellationObject,
   ConstellationStars
@@ -19,44 +20,84 @@ const Constellation = ({
 }: ConstellationProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
+  const [position, setPosition] = useState<{ x: number; y: number }>()
+
   useEffect(() => {
-    if (canvasRef.current) {
-      const canvas = canvasRef.current
-      const ctx = canvas.getContext('2d')
+    const canvas = canvasRef.current
+    if (!canvas) return
 
-      const parent = canvas.parentElement
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-      if (parent) {
-        const { width, height } = parent.getBoundingClientRect()
+    const parent = canvas.parentElement
 
-        canvas.width = width
-        canvas.height = height
-      }
+    if (parent) {
+      const { width, height } = parent.getBoundingClientRect()
 
-      if (ctx) {
-        Object.entries(constellation.starConnections).forEach(
-          (entry: ConstellationStars) => {
-            const highlighted = highlight[entry[1].origin.id]
-              ? highlight[entry[1].origin.id] !== undefined
-              : false
-
-            if (entry[1].destination) {
-              drawConnection(
-                ctx,
-                entry[1].origin,
-                entry[1].destination,
-                highlighted
-              )
-            }
-          }
-        )
-      }
+      canvas.width = width
+      canvas.height = height
     }
+
+    Object.entries(constellation.starConnections).forEach(
+      (entry: ConstellationStars) => {
+        const highlighted = highlight[entry[1].origin.id]
+          ? highlight[entry[1].origin.id] !== undefined
+          : false
+
+        if (entry[1].destination) {
+          drawConnection(
+            ctx,
+            entry[1].origin,
+            entry[1].destination,
+            highlighted
+          )
+        }
+      }
+    )
   }, [canvasRef.current, constellation, highlight])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const connectionWithoutDestination = Object.values(
+      constellation.starConnections
+    ).find(
+      (connection: ConstellationConnection) =>
+        connection.destination === undefined
+    )
+
+    if (!connectionWithoutDestination) return
+
+    drawConnection(
+      ctx,
+      connectionWithoutDestination.origin,
+      connectionWithoutDestination.destination,
+      true,
+      position
+    )
+  }, [position])
+
+  function handlePointerMove(event: PointerEvent<HTMLCanvasElement>) {
+    const { left, top } = event.currentTarget.getBoundingClientRect()
+
+    setPosition({
+      x: event.clientX - left,
+      y: event.clientY - top
+    })
+  }
 
   return (
     <div className=" absolute" style={{ width: '100%', height: '100%' }}>
-      <canvas ref={canvasRef} />
+      <canvas
+        ref={canvasRef}
+        onPointerMove={(event) => {
+          if (draft) handlePointerMove(event)
+        }}
+      />
     </div>
   )
 }

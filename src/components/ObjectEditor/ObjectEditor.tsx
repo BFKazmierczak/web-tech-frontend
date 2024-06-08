@@ -72,7 +72,7 @@ const ObjectEditor = ({
         <span className="font-light">
           {skyObject.id === -1 ? 'Dodawanie:' : 'Edytowanie:'}
         </span>
-        {skyObject?.name} {`(${skyObject.id})`}
+        {skyObject?.name} {skyObject.id !== -1 && `(${skyObject.id})`}
       </span>
 
       <hr />

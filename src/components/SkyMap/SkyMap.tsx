@@ -162,6 +162,7 @@ const SkyMap = ({
           <Constellation
             constellation={draftConstellation}
             highlight={highlightedConstellations[draftConstellation.id]}
+            draft
           />
         )}
       </>
