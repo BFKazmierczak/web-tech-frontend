@@ -4,7 +4,7 @@ import {
   ConstellationStars,
   StarObject
 } from '../../shared/interfaces/interfaces'
-import { Button } from '@mui/material'
+import { Button } from '../Inputs'
 
 interface ConstellationCreatorProps {
   starConnections: ConstellationStars
@@ -29,25 +29,34 @@ const ConstellationCreator = ({
   }, [starConnections])
 
   return (
-    <div className=" flex flex-col gap-y-5">
+    <div className=" flex flex-col w-full p-5 gap-y-5">
       <span className=" italic text-sm text-neutral-500">
         <span>Uwaga:</span> gwiazdy łączą się tylko jednokierunkowo.
       </span>
+
+      {Object.keys(constellation.starConnections).length === 0 && (
+        <span className=" text-sm text-neutral-500">
+          Kliknij na dowolną gwiazdę, aby rozpocząć łączenie
+        </span>
+      )}
 
       <div className=" flex flex-col gap-y-1">
         {Object.entries(constellation.starConnections).map(
           (entry: ConstellationStars) => (
             <div className=" flex gap-x-1">
-              <span>Z: {entry[1].origin.name}</span>
-              <span>Do: {entry[1].destination?.name}</span>
+              <span>
+                Z: {`(${entry[1].origin.id})`} {entry[1].origin.name}
+              </span>
+              <span>
+                Do: {`(${entry[1].destination?.id})`}{' '}
+                {entry[1].destination?.name}
+              </span>
             </div>
           )
         )}
       </div>
 
-      <Button
-        variant="contained"
-        onClick={() => onConstellationCreate(constellation)}>
+      <Button onClick={() => onConstellationCreate(constellation)}>
         Zapisz
       </Button>
     </div>

@@ -19,10 +19,11 @@ const ConstellationTile = ({
   return (
     <>
       <div
-        className=" group flex justify-between items-center w-full pl-2 pr-5 py-2 hover:bg-neutral-100 active:bg-neutral-200 transition-all ease-in-out select-none cursor-pointer"
+        className=" group flex justify-between items-center w-full pl-2 pr-5 py-2 
+          bg-violet-950 hover:bg-violet-800 active:bg-violet-900 rounded-xl
+          transition-all ease-in-out select-none cursor-pointer"
         onClick={(event) => onClick(constellation, event)}>
-        {constellation.name}
-        <NavigationIcon className=" rotate-90 text-neutral-600 group-hover:text-neutral-700 group-active:text-neutral-800 transition-all ease-in-out" />
+        ID: {constellation.id} {constellation.name}
       </div>
       <Divider />
     </>

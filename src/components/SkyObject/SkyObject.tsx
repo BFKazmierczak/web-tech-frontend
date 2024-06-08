@@ -34,54 +34,47 @@ const SkyObject = ({
   const connectionRefs: { [id: number | string]: HTMLCanvasElement } = {}
 
   const [innerSkyObject, setInnerSkyObject] = useState<StarObject>(skyObject)
-
   const [transform, setTransform] = useState<{ x: number; y: number }>({
     x: 0,
     y: 0
   })
 
   useEffect(() => {
-    // check the diff here...
+    const isDifferent =
+      JSON.stringify(innerSkyObject) !== JSON.stringify(skyObject)
+    if (isDifferent) {
+      const passedObjectWidth = Math.abs(
+        2 * (skyObject.innerRadius + skyObject.outerRadius)
+      )
+      const passedObjectHeight = Math.abs(
+        2 * (skyObject.innerRadius + skyObject.outerRadius)
+      )
 
-    const passedObjectWidth = Math.abs(
-      2 * (skyObject.innerRadius + skyObject.outerRadius)
-    )
-    const passedObjectHeight = Math.abs(
-      2 * (skyObject.innerRadius + skyObject.outerRadius)
-    )
+      const innerObjectWidth = Math.abs(
+        2 * (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
+      )
+      const innerObjectHeight = Math.abs(
+        2 * (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
+      )
 
-    const innerObjectWidth = Math.abs(
-      2 * (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
-    )
-    const innerObjectHeight = Math.abs(
-      2 * (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
-    )
+      const widthDiff = passedObjectWidth - innerObjectWidth
+      const heightDiff = passedObjectHeight - innerObjectHeight
 
-    const widthDiff = passedObjectWidth - innerObjectWidth
-    const heightDiff = passedObjectHeight - innerObjectHeight
-
-    const div = objectRef.current
-    if (div) {
       setTransform((prev) => ({
         x: prev.x - widthDiff / 2,
         y: prev.y - heightDiff / 2
       }))
-    }
 
-    setInnerSkyObject(skyObject)
-  }, [skyObject])
+      setInnerSkyObject(skyObject)
+    }
+  }, [skyObject, innerSkyObject])
 
   useEffect(() => {
     const div = objectRef.current
     if (div) {
       div.style.transform = `translateX(${transform.x}px) translateY(${transform.y}px)`
-
-      const x =
-        transform.x + (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
-      const y =
-        transform.y + (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
     }
-  }, [transform, objectRef.current])
+  }, [transform])
 
   useEffect(() => {
     if (parentRef.current) {
@@ -95,21 +88,17 @@ const SkyObject = ({
       const relativeX = innerSkyObject.positionX - skyObjectWidth / 2
       const relativeY = innerSkyObject.positionY - skyObjectHeight / 2
 
-      setTransform({
-        x: relativeX,
-        y: relativeY
+      setTransform((prev) => {
+        if (prev.x !== relativeX || prev.y !== relativeY) {
+          return { x: relativeX, y: relativeY }
+        }
+        return prev
       })
     }
-  }, [
-    objectRef.current,
-    parentRef.current,
-    innerSkyObject.positionX,
-    innerSkyObject.positionY
-  ])
+  }, [parentRef, innerSkyObject.positionX, innerSkyObject.positionY])
 
   useEffect(() => {
     const canvas = canvasRef.current
-
     const ctx = canvas?.getContext('2d')
 
     if (ctx && canvas) {
@@ -121,14 +110,14 @@ const SkyObject = ({
 
       drawStar(ctx, innerSkyObject)
     }
-  }, [canvasRef, innerSkyObject])
+  }, [innerSkyObject])
 
   useEffect(() => {
     if (objectRef.current) {
       if (editing) objectRef.current.style.outline = '2px dotted red'
       else objectRef.current.style.outline = 'none'
     }
-  }, [editing, objectRef])
+  }, [editing])
 
   function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
     if (event.buttons > 0 && editing) {
@@ -149,7 +138,6 @@ const SkyObject = ({
         const offsetX = relativePointerX - objectCenterX
         const offsetY = relativePointerY - objectCenterY
 
-        // druciarstwo przeciw nieskończonej pętli, jeśli pozycja jest zmieniona myszką na mapie
         const x = Math.round(
           offsetX + (innerSkyObject.innerRadius + innerSkyObject.outerRadius)
         )

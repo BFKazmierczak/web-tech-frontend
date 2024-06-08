@@ -10,6 +10,7 @@ import {
 import { Constellation } from '../ConstellationObject'
 
 interface SkyMapProps {
+  className?: string
   stars: StarObject[]
   draftStar?: StarObject
   disableChanges?: boolean
@@ -26,6 +27,7 @@ interface SkyMapProps {
 }
 
 const SkyMap = ({
+  className,
   stars,
   draftStar,
   disableChanges = false,
@@ -91,9 +93,13 @@ const SkyMap = ({
       (constellation) => constellation.starConnections[star.id]
     )
 
+    console.log({ constellations })
+
     if (editedStar?.id === star.id || draftStar?.id === star.id) {
       onPositionUpdate({ ...star, positionX: x, positionY: y })
     }
+
+    console.log({ constellationIndex })
 
     if (constellationIndex >= 0) {
       const updatedConstellation = {
@@ -117,7 +123,7 @@ const SkyMap = ({
 
   return (
     <div
-      className=" relative h-full w-full min-h-48 bg-slate-900"
+      className={` relative w-full h-[70vh] min-h-48 overflow-auto bg-slate-900 ${className}`}
       ref={mapContainer}
       onPointerMove={handlePointerMove}
       onPointerDown={handleGenericPointer}>

@@ -17,8 +17,9 @@ const ConstellationConnectionDisplay = ({
 }: ConstellationConnectionProps) => {
   return (
     <div
-      className=" flex justify-between gap-x-1 select-none 
-        hover:bg-neutral-100 hover:text-blue-500 transition-all ease-in-out"
+      className=" flex justify-between gap-x-1 px-3 select-none font-light
+        bg-violet-800 hover:bg-violet-900 rounded-xl
+        transition-all ease-in-out"
       onMouseEnter={(event) => onMouseEnter(event, connection)}
       onMouseLeave={(event) => onMouseLeave(event)}>
       <span>{connection.origin.name}</span>

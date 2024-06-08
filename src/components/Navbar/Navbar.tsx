@@ -1,7 +1,10 @@
 const Navbar = () => {
   return (
-    <div className=" flex w-full bg-slate-950 px-2 py-5">
-      <span className="font-bold text-white text-2xl">Gwieździste Noce</span>
+    <div className=" flex w-full bg-slate-950 px-5 py-5">
+      <span className=" font-light text-white text-3xl">
+        Gwieździste Noce{' '}
+        <span className=" text-sm">by Bartłomiej Kaźmierczak</span>
+      </span>
     </div>
   )
 }
